@@ -8,7 +8,38 @@ const auth = require('../middleware/auth');
 
 const { generateInvoiceHash, generateBlockchainTxId, logAuditAction } = require('../utils/blockchainHelper');
 
-// GET all projects
+// ==============================================
+// GET NOTIFICATION COUNTS for navbar badges
+// ==============================================
+router.get('/notification-counts', auth, async (req, res) => {
+  try {
+    let counts = { pending: 0, completed: 0, ongoing: 0 };
+
+    if (req.user.role === 'client') {
+      const client = await Client.findOne({ userId: req.user.id });
+      if (client) {
+        counts.pending = await Project.countDocuments({ 
+          clientId: client._id, 
+          status: 'pending_acceptance' 
+        });
+        counts.ongoing = await Project.countDocuments({ 
+          clientId: client._id, 
+          status: 'ongoing' 
+        });
+      }
+    } else if (req.user.role === 'admin') {
+      counts.completed = await Project.countDocuments({ status: 'completed' });
+      counts.ongoing = await Project.countDocuments({ status: 'ongoing' });
+    }
+
+    res.json(counts);
+  } catch (err) {
+    console.error('❌ Notification count error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// GET all projects – with overdue detection
 router.get('/', auth, async (req, res) => {
   try {
     let projects;
@@ -19,8 +50,21 @@ router.get('/', auth, async (req, res) => {
       const clientIds = clients.map(c => c._id);
       projects = await Project.find({ clientId: { $in: clientIds } }).populate('clientId');
     }
-    res.json(projects);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const projectsWithOverdue = projects.map(project => {
+      const obj = project.toObject ? project.toObject() : project;
+      const deadline = new Date(obj.deadline);
+      deadline.setHours(0, 0, 0, 0);
+      obj.isOverdue = (obj.status !== 'completed' && deadline < today);
+      return obj;
+    });
+
+    res.json(projectsWithOverdue);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
@@ -120,12 +164,7 @@ router.put('/:id/respond', auth, async (req, res) => {
   }
 });
 
-// ==============================================
-// ✅ MARK PROJECT AS COMPLETED + BLOCKCHAIN - PERMANENT FIX
-// ==============================================
-// ==============================================
-// ✅ MARK PROJECT AS COMPLETED (FIXED HASH)
-// ==============================================
+// MARK PROJECT AS COMPLETED (FIXED HASH)
 router.put('/:id/complete', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -150,7 +189,6 @@ router.put('/:id/complete', auth, async (req, res) => {
       const invoiceNo = `INV-${Date.now()}-${project._id.toString().slice(-4)}`;
       blockchainTxId = generateBlockchainTxId();
 
-      // 1. Create invoice without hash
       invoice = new Invoice({
         invoiceNo,
         clientName: client.name,
@@ -169,19 +207,12 @@ router.put('/:id/complete', auth, async (req, res) => {
 
       await invoice.save();
 
-      // 2. 🔑 CRITICAL: Reload the invoice to ensure we have a clean Mongoose document
       const freshInvoice = await Invoice.findById(invoice._id);
-      
-      // 3. Generate hash from the fresh document
       invoiceHash = generateInvoiceHash(freshInvoice);
-
-      // 4. Update the invoice with hash
       freshInvoice.invoiceHash = invoiceHash;
       freshInvoice.isBlockchainVerified = true;
       freshInvoice.verifiedAt = new Date();
       await freshInvoice.save();
-
-      // Use the freshInvoice for response
       invoice = freshInvoice;
 
       console.log(`✅ Invoice ${invoice.invoiceNo} created with hash: ${invoiceHash.slice(0, 40)}...`);
@@ -204,9 +235,7 @@ router.put('/:id/complete', auth, async (req, res) => {
   }
 });
 
-// ==============================================
-// ✅ UPDATE project (Admin only) - FIXED for rejected projects
-// ==============================================
+// UPDATE project (Admin only) - FIXED for rejected projects
 router.put('/:id', auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);

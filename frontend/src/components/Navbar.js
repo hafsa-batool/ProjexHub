@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -9,6 +9,7 @@ import {
   FaUserCog, FaSun, FaMoon
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -16,8 +17,35 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState({ pending: 0, completed: 0, ongoing: 0 });
 
   const isAdmin = user?.role === 'admin';
+  const isClient = user?.role === 'client';
+
+  // ✅ Fetch notification counts
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const res = await axios.get('http://localhost:5000/api/projects/notification-counts', {
+        headers: { 'x-auth-token': token }
+      });
+      setNotifications(res.data);
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    }
+  };
+
+  // ✅ Fetch on mount and on focus (when user returns to tab)
+  useEffect(() => {
+    fetchNotifications();
+
+    const handleFocus = () => {
+      fetchNotifications();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -25,7 +53,7 @@ const Navbar = () => {
   };
 
   const allNavItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: <FaTachometerAlt />, adminOnly: false },  // ✅ FIXED
+    { to: '/dashboard', label: 'Dashboard', icon: <FaTachometerAlt />, adminOnly: false },
     { to: '/clients', label: 'Clients', icon: <FaUsers />, adminOnly: true },
     { to: '/projects', label: 'Projects', icon: <FaProjectDiagram />, adminOnly: false },
     { to: '/timelogs', label: 'Time Logs', icon: <FaClock />, adminOnly: false },
@@ -36,6 +64,19 @@ const Navbar = () => {
   const navItems = allNavItems.filter(item => !item.adminOnly || isAdmin);
 
   const isActive = (path) => location.pathname === path;
+
+  // ✅ Get notification count for Projects link
+  const getProjectBadgeCount = () => {
+    if (isClient) {
+      return notifications.pending || 0; // Client: pending approvals
+    }
+    if (isAdmin) {
+      return notifications.completed || 0; // Admin: completed projects
+    }
+    return 0;
+  };
+
+  const badgeCount = getProjectBadgeCount();
 
   return (
     <>
@@ -59,7 +100,7 @@ const Navbar = () => {
                 <Link
                   key={idx}
                   to={item.to}
-                  className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-200 group ${
+                  className={`relative flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-200 group ${
                     isActive(item.to)
                       ? 'bg-white/10 text-white shadow-lg scale-105'
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
@@ -67,6 +108,13 @@ const Navbar = () => {
                 >
                   <span className="text-xl group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
                   <span className="font-semibold text-base tracking-wide">{item.label}</span>
+                  
+                  {/* ✅ Notification Badge on Projects link */}
+                  {item.to === '/projects' && badgeCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg shadow-red-500/50 animate-pulse">
+                      {badgeCount > 99 ? '99+' : badgeCount}
+                    </span>
+                  )}
                   
                   {isActive(item.to) && (
                     <motion.div
@@ -139,7 +187,7 @@ const Navbar = () => {
                   key={idx}
                   to={item.to}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 ${
+                  className={`relative flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 ${
                     isActive(item.to)
                       ? 'bg-white/10 text-white shadow-lg'
                       : 'text-gray-300 hover:bg-white/10'
@@ -147,6 +195,12 @@ const Navbar = () => {
                 >
                   <span className="text-2xl">{item.icon}</span>
                   <span className="font-semibold text-lg">{item.label}</span>
+                  {/* ✅ Mobile badge */}
+                  {item.to === '/projects' && badgeCount > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
+                      {badgeCount > 99 ? '99+' : badgeCount}
+                    </span>
+                  )}
                 </Link>
               ))}
               <div className="pt-4 mt-2 border-t border-white/10">

@@ -89,7 +89,6 @@ const Projects = () => {
     budget: project.budget,
     deadline: project.deadline?.split('T')[0] || '',
     clientId: project.clientId?._id || project.clientId
-    // ✅ DON'T send status field - backend will handle it
   });
   setShowForm(true);
 };
@@ -108,7 +107,6 @@ const Projects = () => {
     }
   };
 
-  // ✅ NEW: Client can mark project as completed
   const handleMarkAsCompleted = async (projectId) => {
     if (window.confirm('Are you sure you want to mark this project as completed? An invoice will be created automatically.')) {
       setUpdating(true);
@@ -209,6 +207,15 @@ const Projects = () => {
                   <textarea placeholder="Description" rows="3" className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-white" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                   <input type="number" placeholder="Budget *" className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-white" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} required />
                   <input type="date" placeholder="Deadline" className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-white" value={formData.deadline} onChange={(e) => setFormData({ ...formData, deadline: e.target.value })} />
+                  {/* ✅ FIX: Prevent past date selection */}
+                  <input
+                    type="date"
+                    placeholder="Deadline"
+                    min={new Date().toISOString().split('T')[0]}  // 🟢 TODAY OR FUTURE ONLY
+                    className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-white"
+                    value={formData.deadline}
+                    onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                  />
                 </div>
                 <div className="flex justify-end gap-3">
                   <button type="button" onClick={() => setShowForm(false)} className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition text-gray-700 dark:text-gray-300">Cancel</button>
@@ -224,6 +231,7 @@ const Projects = () => {
             const statusBadge = getStatusBadge(project.status);
             const isCompleted = project.status === 'completed';
             const isOngoing = project.status === 'ongoing';
+            const isOverdue = project.isOverdue && !isCompleted;  // ✅ Overdue flag from backend
             
             return (
               <div key={project._id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-150">
@@ -274,9 +282,15 @@ const Projects = () => {
                       {statusBadge.icon}
                       {statusBadge.label}
                     </span>
+                    {/* ✅ Overdue Badge */}
+                    {isOverdue && (
+                      <span className="ml-2 px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
+                        ⚠️ Overdue
+                      </span>
+                    )}
                   </div>
                   
-                  {/* ✅ ACCEPT/REJECT BUTTONS for pending projects */}
+                  {/* ACCEPT/REJECT BUTTONS for pending projects */}
                   {isClient && project.status === 'pending_acceptance' && (
                     <div className="flex gap-2 mt-3">
                       <button onClick={(e) => handleRespondToProject(e, project._id, true)} className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition flex items-center gap-1">
@@ -288,7 +302,7 @@ const Projects = () => {
                     </div>
                   )}
                   
-                  {/* ✅ MARK AS COMPLETED BUTTON for ongoing projects (Client only) */}
+                  {/* MARK AS COMPLETED BUTTON for ongoing projects (Client only) */}
                   {isClient && isOngoing && (
                     <button
                       onClick={() => handleMarkAsCompleted(project._id)}
