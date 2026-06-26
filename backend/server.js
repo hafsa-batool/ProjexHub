@@ -13,7 +13,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -26,8 +25,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization']
 }));
 
-// ✅ Handle preflight requests (OPTIONS)
-app.options('*', cors());
+// ❌ REMOVE this line – it's causing the crash:
+// app.options('*', cors());
 
 // Middleware
 app.use(express.json());
