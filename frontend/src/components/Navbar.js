@@ -24,7 +24,6 @@ const Navbar = () => {
   const isAdmin = user?.role === 'admin';
   const isClient = user?.role === 'client';
 
-  // Fetch notification counts (existing)
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -38,7 +37,6 @@ const Navbar = () => {
     }
   };
 
-  // Fetch unread count for bell icon
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -52,17 +50,20 @@ const Navbar = () => {
     }
   };
 
-  // ✅ NEW: Clear badge when user opens notifications page
+  // ✅ Clear badge instantly when notifications page is opened
   useEffect(() => {
     if (location.pathname === '/notifications') {
-      // Optimistically clear the badge instantly
       setUnreadCount(0);
-      // Sync with backend (will be 0 anyway)
       fetchUnreadCount();
     }
   }, [location.pathname]);
 
-  // Fetch on mount and on focus
+  // ✅ Also clear when user clicks the bell icon (before navigation)
+  const handleBellClick = () => {
+    setUnreadCount(0);
+    navigate('/notifications');
+  };
+
   useEffect(() => {
     fetchNotifications();
     fetchUnreadCount();
@@ -155,8 +156,8 @@ const Navbar = () => {
             {/* User Menu */}
             <div className="flex items-center gap-4">
               {/* 🔔 Notification Bell */}
-              <Link
-                to="/notifications"
+              <button
+                onClick={handleBellClick}
                 className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
                 title="Notifications"
               >
@@ -166,7 +167,7 @@ const Navbar = () => {
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
-              </Link>
+              </button>
 
               {/* Dark Mode Toggle */}
               <motion.button
