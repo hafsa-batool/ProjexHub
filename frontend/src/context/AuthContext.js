@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -25,36 +27,36 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-  try {
-    console.log('Sending login request for:', email);
-    const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-    console.log('Full response:', res);
-    console.log('Response data:', res.data);
-    console.log('Success:', res.data.success);
-    
-    if (res.data.success === true) {
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      setToken(res.data.token);
-      setUser(res.data.user);
-      console.log('Login successful, redirecting...');
-      return { success: true };
-    } else {
-      console.log('Success false');
-      return { success: false, error: 'Login failed' };
+    try {
+      console.log('Sending login request for:', email);
+      const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      console.log('Full response:', res);
+      console.log('Response data:', res.data);
+
+      // Backend returns token and user directly
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        setToken(res.data.token);
+        setUser(res.data.user);
+        console.log('Login successful, redirecting...');
+        return { success: true };
+      } else {
+        console.log('No token in response');
+        return { success: false, error: 'Login failed' };
+      }
+    } catch (err) {
+      console.error('Login error:', err.response?.data || err.message);
+      return {
+        success: false,
+        error: err.response?.data?.msg || 'Login failed'
+      };
     }
-  } catch (err) {
-    console.error('Login error:', err.response?.data || err.message);
-    return { 
-      success: false, 
-      error: err.response?.data?.msg || 'Login failed' 
-    };
-  }
-};
+  };
 
   const register = async (name, email, password, role) => {
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', { name, email, password, role });
+      const res = await axios.post(`${API_URL}/api/auth/register`, { name, email, password, role });
       return { success: true, message: res.data.msg };
     } catch (err) {
       return { success: false, error: err.response?.data?.msg || 'Registration failed' };
