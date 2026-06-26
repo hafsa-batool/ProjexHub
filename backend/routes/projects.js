@@ -51,6 +51,7 @@ router.get('/', auth, async (req, res) => {
       projects = await Project.find({ clientId: { $in: clientIds } }).populate('clientId');
     }
 
+    // ✅ Overdue detection
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -58,6 +59,7 @@ router.get('/', auth, async (req, res) => {
       const obj = project.toObject ? project.toObject() : project;
       const deadline = new Date(obj.deadline);
       deadline.setHours(0, 0, 0, 0);
+      // If deadline is in the past and project is not completed -> overdue
       obj.isOverdue = (obj.status !== 'completed' && deadline < today);
       return obj;
     });
@@ -164,7 +166,7 @@ router.put('/:id/respond', auth, async (req, res) => {
   }
 });
 
-// MARK PROJECT AS COMPLETED (FIXED HASH)
+// MARK PROJECT AS COMPLETED (FIXED HASH) – no changes
 router.put('/:id/complete', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -235,7 +237,7 @@ router.put('/:id/complete', auth, async (req, res) => {
   }
 });
 
-// UPDATE project (Admin only) - FIXED for rejected projects
+// UPDATE project (Admin only) – no changes
 router.put('/:id', auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
