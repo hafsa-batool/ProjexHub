@@ -21,9 +21,7 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const isAdmin = user?.role === 'admin';
-  // ✅ REMOVED: const isClient = user?.role === 'client'; // no longer used
 
-  // Fetch unread count for bell icon
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -37,7 +35,6 @@ const Navbar = () => {
     }
   };
 
-  // Clear badge instantly when notifications page is opened
   useEffect(() => {
     if (location.pathname === '/notifications') {
       setUnreadCount(0);
@@ -45,13 +42,11 @@ const Navbar = () => {
     }
   }, [location.pathname]);
 
-  // Clear badge when user clicks the bell icon
   const handleBellClick = () => {
     setUnreadCount(0);
     navigate('/notifications');
   };
 
-  // Fetch on mount and on focus
   useEffect(() => {
     fetchUnreadCount();
 
@@ -78,7 +73,11 @@ const Navbar = () => {
 
   const navItems = allNavItems.filter(item => !item.adminOnly || isAdmin);
 
-  const isActive = (path) => location.pathname === path;
+  // ✅ Fixed active highlight – use startsWith for nested routes
+  const isActive = (path) => {
+    if (path === '/dashboard') return location.pathname === path;
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <>
@@ -124,7 +123,7 @@ const Navbar = () => {
 
             {/* User Menu */}
             <div className="flex items-center gap-4">
-              {/* 🔔 Notification Bell – Only badge here */}
+              {/* Notification Bell */}
               <button
                 onClick={handleBellClick}
                 className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"

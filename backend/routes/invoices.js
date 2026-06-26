@@ -57,7 +57,7 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
-// UPDATE invoice status (Mark as Paid) – WITH NOTIFICATION
+// UPDATE invoice status (Mark as Paid) – notification → /invoices
 router.put('/:id', auth, async (req, res) => {
   try {
     const invoice = await Invoice.findById(req.params.id);
@@ -80,7 +80,7 @@ router.put('/:id', auth, async (req, res) => {
     console.log(`✅ Invoice ${invoice.invoiceNo}: ${oldStatus} → ${newStatus}`);
     await logAuditAction(AuditTrail, 'UPDATE', invoice._id.toString(), req.user.id, req.user.name, `Status changed to ${newStatus}`, invoice.blockchainTxId);
 
-    // ✅ CREATE NOTIFICATION FOR CLIENT
+    // CREATE NOTIFICATION FOR CLIENT – link to /invoices list
     if (newStatus === 'paid') {
       const client = await Client.findById(invoice.clientId);
       if (client) {
@@ -89,7 +89,7 @@ router.put('/:id', auth, async (req, res) => {
           'invoice_paid',
           'Invoice Paid',
           `Invoice #${invoice.invoiceNo} for $${invoice.amount} has been marked as paid`,
-          `/invoices/${invoice._id}`
+          `/invoices`   // ✅ Changed to list page
         );
       }
     }

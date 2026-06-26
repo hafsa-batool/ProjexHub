@@ -53,7 +53,6 @@ router.get('/', auth, async (req, res) => {
       projects = await Project.find({ clientId: { $in: clientIds } }).populate('clientId');
     }
 
-    // ✅ Overdue detection
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -61,7 +60,6 @@ router.get('/', auth, async (req, res) => {
       const obj = project.toObject ? project.toObject() : project;
       const deadline = new Date(obj.deadline);
       deadline.setHours(0, 0, 0, 0);
-      // If deadline is in the past and project is not completed -> overdue
       obj.isOverdue = (obj.status !== 'completed' && deadline < today);
       return obj;
     });
@@ -73,7 +71,7 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// GET single project
+// GET single project (detail page - still needed for viewing)
 router.get('/:id', auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id).populate('clientId');
@@ -101,7 +99,7 @@ router.get('/client/:clientId', auth, async (req, res) => {
   }
 });
 
-// POST create project – WITH NOTIFICATION
+// POST create project – notification link → /projects
 router.post('/', auth, async (req, res) => {
   try {
     const { name, description, budget, deadline, clientId } = req.body;
@@ -124,7 +122,6 @@ router.post('/', auth, async (req, res) => {
     await project.save();
     res.json(project);
 
-    // ✅ CREATE NOTIFICATION FOR CLIENT
     const client = await Client.findById(clientId);
     if (client) {
       await createNotification(
@@ -132,7 +129,7 @@ router.post('/', auth, async (req, res) => {
         'project_created',
         'New Project Assigned',
         `Admin assigned a new project: "${name}" with budget $${budget}`,
-        `/projects/${project._id}`
+        `/projects`   // ✅ Changed to list page
       );
     }
 
@@ -142,7 +139,7 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// ACCEPT/REJECT ROUTE – WITH NOTIFICATIONS
+// ACCEPT/REJECT ROUTE – notifications to /projects
 router.put('/:id/respond', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -168,7 +165,6 @@ router.put('/:id/respond', auth, async (req, res) => {
       project.status = 'ongoing';
       await project.save();
 
-      // ✅ CREATE NOTIFICATION FOR ADMIN
       const admin = await User.findOne({ role: 'admin' });
       if (admin) {
         await createNotification(
@@ -176,7 +172,7 @@ router.put('/:id/respond', auth, async (req, res) => {
           'project_accepted',
           'Project Accepted',
           `Client "${client.name}" accepted the project: "${project.name}" with budget $${project.budget}`,
-          `/projects/${project._id}`
+          `/projects`   // ✅ Changed to list page
         );
       }
 
@@ -186,7 +182,6 @@ router.put('/:id/respond', auth, async (req, res) => {
       project.status = 'rejected';
       await project.save();
 
-      // ✅ CREATE NOTIFICATION FOR ADMIN
       const admin = await User.findOne({ role: 'admin' });
       if (admin) {
         await createNotification(
@@ -194,7 +189,7 @@ router.put('/:id/respond', auth, async (req, res) => {
           'project_rejected',
           'Project Rejected',
           `Client "${client.name}" rejected the project: "${project.name}"`,
-          `/projects/${project._id}`
+          `/projects`   // ✅ Changed to list page
         );
       }
 
@@ -209,7 +204,7 @@ router.put('/:id/respond', auth, async (req, res) => {
   }
 });
 
-// MARK PROJECT AS COMPLETED – WITH NOTIFICATION
+// MARK PROJECT AS COMPLETED – notification to /projects
 router.put('/:id/complete', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -269,7 +264,6 @@ router.put('/:id/complete', auth, async (req, res) => {
       blockchainTxId = invoice.blockchainTxId;
     }
 
-    // ✅ CREATE NOTIFICATION FOR ADMIN
     const admin = await User.findOne({ role: 'admin' });
     if (admin) {
       await createNotification(
@@ -277,7 +271,7 @@ router.put('/:id/complete', auth, async (req, res) => {
         'project_completed',
         'Project Completed',
         `Client "${client.name}" completed project: "${project.name}" (Invoice #${invoice.invoiceNo})`,
-        `/projects/${project._id}`
+        `/projects`   // ✅ Changed to list page
       );
     }
 
