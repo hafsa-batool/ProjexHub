@@ -10,7 +10,8 @@ import Clients from './pages/Clients';
 import Projects from './pages/Projects';
 import TimeLogs from './pages/TimeLogs';
 import Invoices from './pages/Invoices';
-import InvoiceView from './pages/InvoiceView';  // ✅ YEH IMPORT ADD KIYA
+import InvoiceView from './pages/InvoiceView';
+import Notifications from './pages/Notifications'; // ✅ NEW
 import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import VerifyEmail from './pages/VerifyEmail';
@@ -112,12 +113,21 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* ✅ INVOICE VIEW ROUTE - YEH ADD KIYA */}
             <Route path="/invoices/:id" element={
               <ProtectedRoute>
                 <>
                   <Navbar />
                   <InvoiceView />
+                </>
+              </ProtectedRoute>
+            } />
+            
+            {/* ✅ NEW: Notifications Route */}
+            <Route path="/notifications" element={
+              <ProtectedRoute>
+                <>
+                  <Navbar />
+                  <Notifications />
                 </>
               </ProtectedRoute>
             } />

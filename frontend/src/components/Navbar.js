@@ -6,7 +6,8 @@ import {
   FaTachometerAlt, FaUsers, FaProjectDiagram, 
   FaClock, FaFileInvoice, FaSignOutAlt, 
   FaBars, FaTimes, FaUserCircle, FaChartLine,
-  FaUserCog, FaSun, FaMoon
+  FaUserCog, FaSun, FaMoon,
+  FaBell                                        // ✅ Added
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -18,11 +19,12 @@ const Navbar = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState({ pending: 0, completed: 0, ongoing: 0 });
+  const [unreadCount, setUnreadCount] = useState(0);  // ✅ New state
 
   const isAdmin = user?.role === 'admin';
   const isClient = user?.role === 'client';
 
-  // ✅ Fetch notification counts
+  // ✅ Fetch notification counts (existing)
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -36,12 +38,28 @@ const Navbar = () => {
     }
   };
 
-  // ✅ Fetch on mount and on focus (when user returns to tab)
+  // ✅ Fetch unread count for bell icon
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const res = await axios.get('http://localhost:5000/api/notifications/unread-count', {
+        headers: { 'x-auth-token': token }
+      });
+      setUnreadCount(res.data.count || 0);
+    } catch (err) {
+      console.error('Failed to fetch unread count:', err);
+    }
+  };
+
+  // ✅ Fetch on mount and on focus
   useEffect(() => {
     fetchNotifications();
+    fetchUnreadCount();
 
     const handleFocus = () => {
       fetchNotifications();
+      fetchUnreadCount();
     };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
@@ -65,17 +83,16 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  // ✅ Get notification count for Projects link
+  // ✅ Existing badge on Projects link (unchanged)
   const getProjectBadgeCount = () => {
     if (isClient) {
-      return notifications.pending || 0; // Client: pending approvals
+      return notifications.pending || 0;
     }
     if (isAdmin) {
-      return notifications.completed || 0; // Admin: completed projects
+      return notifications.completed || 0;
     }
     return 0;
   };
-
   const badgeCount = getProjectBadgeCount();
 
   return (
@@ -109,7 +126,7 @@ const Navbar = () => {
                   <span className="text-xl group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
                   <span className="font-semibold text-base tracking-wide">{item.label}</span>
                   
-                  {/* ✅ Notification Badge on Projects link */}
+                  {/* Notification Badge on Projects link (existing) */}
                   {item.to === '/projects' && badgeCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg shadow-red-500/50 animate-pulse">
                       {badgeCount > 99 ? '99+' : badgeCount}
@@ -129,6 +146,20 @@ const Navbar = () => {
 
             {/* User Menu */}
             <div className="flex items-center gap-4">
+              {/* 🔔 Notification Bell */}
+              <Link
+                to="/notifications"
+                className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
+                title="Notifications"
+              >
+                <FaBell className="text-xl text-slate-300" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-5 flex items-center justify-center px-1.5 shadow-lg shadow-red-500/50 animate-pulse">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+
               {/* Dark Mode Toggle */}
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -195,7 +226,7 @@ const Navbar = () => {
                 >
                   <span className="text-2xl">{item.icon}</span>
                   <span className="font-semibold text-lg">{item.label}</span>
-                  {/* ✅ Mobile badge */}
+                  {/* Mobile badge on Projects */}
                   {item.to === '/projects' && badgeCount > 0 && (
                     <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
                       {badgeCount > 99 ? '99+' : badgeCount}

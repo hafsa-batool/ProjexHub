@@ -3,8 +3,10 @@ const router = express.Router();
 const Invoice = require('../models/Invoice');
 const Client = require('../models/Client');
 const AuditTrail = require('../models/AuditTrail');
+const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { generateInvoiceHash, generateBlockchainTxId, logAuditAction } = require('../utils/blockchainHelper');
+const { createNotification } = require('../utils/notificationHelper');
 
 // GET all invoices – re‑verify paid invoices on every list fetch
 router.get('/', auth, async (req, res) => {
@@ -55,7 +57,7 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
-// UPDATE invoice status (Mark as Paid)
+// UPDATE invoice status (Mark as Paid) – WITH NOTIFICATION
 router.put('/:id', auth, async (req, res) => {
   try {
     const invoice = await Invoice.findById(req.params.id);
@@ -77,6 +79,21 @@ router.put('/:id', auth, async (req, res) => {
     await invoice.save();
     console.log(`✅ Invoice ${invoice.invoiceNo}: ${oldStatus} → ${newStatus}`);
     await logAuditAction(AuditTrail, 'UPDATE', invoice._id.toString(), req.user.id, req.user.name, `Status changed to ${newStatus}`, invoice.blockchainTxId);
+
+    // ✅ CREATE NOTIFICATION FOR CLIENT
+    if (newStatus === 'paid') {
+      const client = await Client.findById(invoice.clientId);
+      if (client) {
+        await createNotification(
+          client.userId,
+          'invoice_paid',
+          'Invoice Paid',
+          `Invoice #${invoice.invoiceNo} for $${invoice.amount} has been marked as paid`,
+          `/invoices/${invoice._id}`
+        );
+      }
+    }
+
     res.json({ msg: 'Invoice updated with blockchain verification', invoice });
   } catch (err) {
     console.error(err);

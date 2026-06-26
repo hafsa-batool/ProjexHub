@@ -4,9 +4,11 @@ const Project = require('../models/Project');
 const Client = require('../models/Client');
 const Invoice = require('../models/Invoice');
 const AuditTrail = require('../models/AuditTrail');
+const User = require('../models/User');
 const auth = require('../middleware/auth');
 
 const { generateInvoiceHash, generateBlockchainTxId, logAuditAction } = require('../utils/blockchainHelper');
+const { createNotification } = require('../utils/notificationHelper');
 
 // ==============================================
 // GET NOTIFICATION COUNTS for navbar badges
@@ -99,7 +101,7 @@ router.get('/client/:clientId', auth, async (req, res) => {
   }
 });
 
-// POST create project
+// POST create project – WITH NOTIFICATION
 router.post('/', auth, async (req, res) => {
   try {
     const { name, description, budget, deadline, clientId } = req.body;
@@ -121,13 +123,26 @@ router.post('/', auth, async (req, res) => {
     });
     await project.save();
     res.json(project);
+
+    // ✅ CREATE NOTIFICATION FOR CLIENT
+    const client = await Client.findById(clientId);
+    if (client) {
+      await createNotification(
+        client.userId,
+        'project_created',
+        'New Project Assigned',
+        `Admin assigned a new project: "${name}" with budget $${budget}`,
+        `/projects/${project._id}`
+      );
+    }
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// ACCEPT/REJECT ROUTE
+// ACCEPT/REJECT ROUTE – WITH NOTIFICATIONS
 router.put('/:id/respond', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -152,11 +167,39 @@ router.put('/:id/respond', auth, async (req, res) => {
     if (accept === true) {
       project.status = 'ongoing';
       await project.save();
+
+      // ✅ CREATE NOTIFICATION FOR ADMIN
+      const admin = await User.findOne({ role: 'admin' });
+      if (admin) {
+        await createNotification(
+          admin._id,
+          'project_accepted',
+          'Project Accepted',
+          `Client "${client.name}" accepted the project: "${project.name}" with budget $${project.budget}`,
+          `/projects/${project._id}`
+        );
+      }
+
       return res.json({ success: true, msg: `✅ Budget $${project.budget} accepted!` });
+      
     } else if (accept === false) {
       project.status = 'rejected';
       await project.save();
+
+      // ✅ CREATE NOTIFICATION FOR ADMIN
+      const admin = await User.findOne({ role: 'admin' });
+      if (admin) {
+        await createNotification(
+          admin._id,
+          'project_rejected',
+          'Project Rejected',
+          `Client "${client.name}" rejected the project: "${project.name}"`,
+          `/projects/${project._id}`
+        );
+      }
+
       return res.json({ success: true, msg: `❌ Budget rejected.` });
+      
     } else {
       return res.status(400).json({ msg: 'Invalid accept value' });
     }
@@ -166,7 +209,7 @@ router.put('/:id/respond', auth, async (req, res) => {
   }
 });
 
-// MARK PROJECT AS COMPLETED (FIXED HASH) – no changes
+// MARK PROJECT AS COMPLETED – WITH NOTIFICATION
 router.put('/:id/complete', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -224,6 +267,18 @@ router.put('/:id/complete', auth, async (req, res) => {
     } else {
       invoiceHash = invoice.invoiceHash;
       blockchainTxId = invoice.blockchainTxId;
+    }
+
+    // ✅ CREATE NOTIFICATION FOR ADMIN
+    const admin = await User.findOne({ role: 'admin' });
+    if (admin) {
+      await createNotification(
+        admin._id,
+        'project_completed',
+        'Project Completed',
+        `Client "${client.name}" completed project: "${project.name}" (Invoice #${invoice.invoiceNo})`,
+        `/projects/${project._id}`
+      );
     }
 
     return res.json({

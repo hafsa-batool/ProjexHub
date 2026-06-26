@@ -23,6 +23,7 @@ const projectRoutes = require('./routes/projects');
 const timelogRoutes = require('./routes/timelogs');
 const invoiceRoutes = require('./routes/invoices');
 const userRoutes = require('./routes/users');
+const notificationRoutes = require('./routes/notifications'); // ✅ NEW
 
 app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
@@ -30,6 +31,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/timelogs', timelogRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes); // ✅ NEW
 
 // Test route
 app.get('/', (req, res) => {
