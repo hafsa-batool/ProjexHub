@@ -4,8 +4,6 @@ import { motion } from 'framer-motion';
 import { FaUser, FaEnvelope, FaLock, FaUserTag, FaArrowRight, FaProjectDiagram } from 'react-icons/fa';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -38,7 +36,7 @@ const Register = () => {
     setMessage('');
 
     try {
-      const res = await axios.post(`${API_URL}/api/auth/register`, {
+      const res = await axios.post('http://localhost:5000/api/auth/register', {
         name, email, password, role
       });
       
@@ -52,7 +50,6 @@ const Register = () => {
       }, 3000);
       
     } catch (err) {
-      console.error('Registration error:', err);
       setError(err.response?.data?.msg || 'Registration failed');
     } finally {
       setLoading(false);

@@ -5,13 +5,29 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS setup - Allow all origins (fix for 404 error)
+// ✅ CORS – Allow specific origins (Netlify + local)
+const allowedOrigins = [
+  'https://projexhubapp.netlify.app',
+  'http://localhost:3000'
+];
+
 app.use(cors({
-  origin: ['https://projexhubapp.netlify.app', 'http://localhost:3000'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization']
 }));
+
+// ✅ Handle preflight requests (OPTIONS)
+app.options('*', cors());
 
 // Middleware
 app.use(express.json());
@@ -23,7 +39,7 @@ const projectRoutes = require('./routes/projects');
 const timelogRoutes = require('./routes/timelogs');
 const invoiceRoutes = require('./routes/invoices');
 const userRoutes = require('./routes/users');
-const notificationRoutes = require('./routes/notifications'); // ✅ NEW
+const notificationRoutes = require('./routes/notifications');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
@@ -31,7 +47,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/timelogs', timelogRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/notifications', notificationRoutes); // ✅ NEW
+app.use('/api/notifications', notificationRoutes);
 
 // Test route
 app.get('/', (req, res) => {
