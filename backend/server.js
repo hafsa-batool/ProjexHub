@@ -5,28 +5,15 @@ require('dotenv').config();
 
 const app = express();
 
-// ✅ CORS – Allow specific origins (Netlify + local)
-const allowedOrigins = [
-  'https://projexhubapp.netlify.app',
-  'http://localhost:3000'
-];
-
+// ✅ CORS – Allow all origins (temporarily) – we'll restrict later
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization']
 }));
 
-// ❌ REMOVE this line – it's causing the crash:
-// app.options('*', cors());
+// ✅ Handle preflight requests explicitly
+app.options('*', cors());
 
 // Middleware
 app.use(express.json());
@@ -48,7 +35,6 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 
-// Test route
 app.get('/', (req, res) => {
   res.json({ message: 'ProjexHub API is running 🚀' });
 });
