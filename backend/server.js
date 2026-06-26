@@ -5,44 +5,20 @@ require('dotenv').config();
 
 const app = express();
 
-// ✅ CORS – Allow all origins (temporarily) – we'll restrict later
+// ✅ CORS – allow Netlify frontend
 app.use(cors({
-  origin: '*',
+  origin: ['https://projexhubapp.netlify.app', 'http://localhost:3000'],
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization']
 }));
 
-// ✅ Handle preflight requests explicitly
-app.options('*', cors());
+// ❌ Make sure this line is NOT here:
+// app.options('*', cors());
 
-// Middleware
 app.use(express.json());
 
-// Routes
-const authRoutes = require('./routes/auth');
-const clientRoutes = require('./routes/clients');
-const projectRoutes = require('./routes/projects');
-const timelogRoutes = require('./routes/timelogs');
-const invoiceRoutes = require('./routes/invoices');
-const userRoutes = require('./routes/users');
-const notificationRoutes = require('./routes/notifications');
-
-app.use('/api/auth', authRoutes);
-app.use('/api/clients', clientRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/timelogs', timelogRoutes);
-app.use('/api/invoices', invoiceRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/notifications', notificationRoutes);
-
-app.get('/', (req, res) => {
-  res.json({ message: 'ProjexHub API is running 🚀' });
-});
-
-// Database connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.log('❌ MongoDB Error:', err));
+// ... rest of your routes (same as before)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
