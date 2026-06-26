@@ -7,10 +7,10 @@ const app = express();
 
 // CORS setup - Allow all origins (fix for 404 error)
 app.use(cors({
-  origin: '*',
+  origin: ['https://projexhubapp.netlify.app', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-auth-token']
+  allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization']
 }));
 
 // Middleware
