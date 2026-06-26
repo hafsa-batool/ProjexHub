@@ -7,7 +7,7 @@ import {
   FaClock, FaFileInvoice, FaSignOutAlt, 
   FaBars, FaTimes, FaUserCircle, FaChartLine,
   FaUserCog, FaSun, FaMoon,
-  FaBell                                        // ✅ Added
+  FaBell
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -19,12 +19,12 @@ const Navbar = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState({ pending: 0, completed: 0, ongoing: 0 });
-  const [unreadCount, setUnreadCount] = useState(0);  // ✅ New state
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const isAdmin = user?.role === 'admin';
   const isClient = user?.role === 'client';
 
-  // ✅ Fetch notification counts (existing)
+  // Fetch notification counts (existing)
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -38,7 +38,7 @@ const Navbar = () => {
     }
   };
 
-  // ✅ Fetch unread count for bell icon
+  // Fetch unread count for bell icon
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -52,7 +52,17 @@ const Navbar = () => {
     }
   };
 
-  // ✅ Fetch on mount and on focus
+  // ✅ NEW: Clear badge when user opens notifications page
+  useEffect(() => {
+    if (location.pathname === '/notifications') {
+      // Optimistically clear the badge instantly
+      setUnreadCount(0);
+      // Sync with backend (will be 0 anyway)
+      fetchUnreadCount();
+    }
+  }, [location.pathname]);
+
+  // Fetch on mount and on focus
   useEffect(() => {
     fetchNotifications();
     fetchUnreadCount();
@@ -83,7 +93,6 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  // ✅ Existing badge on Projects link (unchanged)
   const getProjectBadgeCount = () => {
     if (isClient) {
       return notifications.pending || 0;
@@ -126,7 +135,6 @@ const Navbar = () => {
                   <span className="text-xl group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
                   <span className="font-semibold text-base tracking-wide">{item.label}</span>
                   
-                  {/* Notification Badge on Projects link (existing) */}
                   {item.to === '/projects' && badgeCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg shadow-red-500/50 animate-pulse">
                       {badgeCount > 99 ? '99+' : badgeCount}
@@ -169,7 +177,7 @@ const Navbar = () => {
                 {darkMode ? <FaSun className="text-xl text-yellow-400" /> : <FaMoon className="text-xl text-slate-300" />}
               </motion.button>
 
-              {/* Profile - Clickable */}
+              {/* Profile */}
               <Link
                 to="/profile"
                 className="hidden md:flex items-center gap-3 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 hover:bg-white/15 transition-all duration-200 cursor-pointer group"
@@ -181,7 +189,7 @@ const Navbar = () => {
                 </div>
               </Link>
               
-              {/* Logout Button */}
+              {/* Logout */}
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 px-5 py-2.5 rounded-xl transition-all duration-200 border border-red-500/30 hover:border-red-500/50"
@@ -190,7 +198,7 @@ const Navbar = () => {
                 <span className="hidden md:inline text-sm font-semibold text-red-300">Logout</span>
               </button>
               
-              {/* Mobile Menu Button */}
+              {/* Mobile Menu */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2.5 rounded-xl hover:bg-white/10 transition-all duration-200"
@@ -226,7 +234,6 @@ const Navbar = () => {
                 >
                   <span className="text-2xl">{item.icon}</span>
                   <span className="font-semibold text-lg">{item.label}</span>
-                  {/* Mobile badge on Projects */}
                   {item.to === '/projects' && badgeCount > 0 && (
                     <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
                       {badgeCount > 99 ? '99+' : badgeCount}
