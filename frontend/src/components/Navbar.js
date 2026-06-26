@@ -18,25 +18,12 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [notifications, setNotifications] = useState({ pending: 0, completed: 0, ongoing: 0 });
   const [unreadCount, setUnreadCount] = useState(0);
 
   const isAdmin = user?.role === 'admin';
-  const isClient = user?.role === 'client';
+  // ✅ REMOVED: const isClient = user?.role === 'client'; // no longer used
 
-  const fetchNotifications = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      const res = await axios.get('http://localhost:5000/api/projects/notification-counts', {
-        headers: { 'x-auth-token': token }
-      });
-      setNotifications(res.data);
-    } catch (err) {
-      console.error('Failed to fetch notifications:', err);
-    }
-  };
-
+  // Fetch unread count for bell icon
   const fetchUnreadCount = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -50,7 +37,7 @@ const Navbar = () => {
     }
   };
 
-  // ✅ Clear badge instantly when notifications page is opened
+  // Clear badge instantly when notifications page is opened
   useEffect(() => {
     if (location.pathname === '/notifications') {
       setUnreadCount(0);
@@ -58,18 +45,17 @@ const Navbar = () => {
     }
   }, [location.pathname]);
 
-  // ✅ Also clear when user clicks the bell icon (before navigation)
+  // Clear badge when user clicks the bell icon
   const handleBellClick = () => {
     setUnreadCount(0);
     navigate('/notifications');
   };
 
+  // Fetch on mount and on focus
   useEffect(() => {
-    fetchNotifications();
     fetchUnreadCount();
 
     const handleFocus = () => {
-      fetchNotifications();
       fetchUnreadCount();
     };
     window.addEventListener('focus', handleFocus);
@@ -93,17 +79,6 @@ const Navbar = () => {
   const navItems = allNavItems.filter(item => !item.adminOnly || isAdmin);
 
   const isActive = (path) => location.pathname === path;
-
-  const getProjectBadgeCount = () => {
-    if (isClient) {
-      return notifications.pending || 0;
-    }
-    if (isAdmin) {
-      return notifications.completed || 0;
-    }
-    return 0;
-  };
-  const badgeCount = getProjectBadgeCount();
 
   return (
     <>
@@ -136,12 +111,6 @@ const Navbar = () => {
                   <span className="text-xl group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
                   <span className="font-semibold text-base tracking-wide">{item.label}</span>
                   
-                  {item.to === '/projects' && badgeCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shadow-lg shadow-red-500/50 animate-pulse">
-                      {badgeCount > 99 ? '99+' : badgeCount}
-                    </span>
-                  )}
-                  
                   {isActive(item.to) && (
                     <motion.div
                       layoutId="activeTab"
@@ -155,7 +124,7 @@ const Navbar = () => {
 
             {/* User Menu */}
             <div className="flex items-center gap-4">
-              {/* 🔔 Notification Bell */}
+              {/* 🔔 Notification Bell – Only badge here */}
               <button
                 onClick={handleBellClick}
                 className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
@@ -227,7 +196,7 @@ const Navbar = () => {
                   key={idx}
                   to={item.to}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`relative flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 ${
+                  className={`flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 ${
                     isActive(item.to)
                       ? 'bg-white/10 text-white shadow-lg'
                       : 'text-gray-300 hover:bg-white/10'
@@ -235,11 +204,6 @@ const Navbar = () => {
                 >
                   <span className="text-2xl">{item.icon}</span>
                   <span className="font-semibold text-lg">{item.label}</span>
-                  {item.to === '/projects' && badgeCount > 0 && (
-                    <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
-                      {badgeCount > 99 ? '99+' : badgeCount}
-                    </span>
-                  )}
                 </Link>
               ))}
               <div className="pt-4 mt-2 border-t border-white/10">
