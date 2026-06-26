@@ -71,7 +71,7 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// GET single project (detail page - still needed for viewing)
+// GET single project
 router.get('/:id', auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id).populate('clientId');
@@ -99,7 +99,7 @@ router.get('/client/:clientId', auth, async (req, res) => {
   }
 });
 
-// POST create project – notification link → /projects
+// POST create project – notification to /projects
 router.post('/', auth, async (req, res) => {
   try {
     const { name, description, budget, deadline, clientId } = req.body;
@@ -129,7 +129,7 @@ router.post('/', auth, async (req, res) => {
         'project_created',
         'New Project Assigned',
         `Admin assigned a new project: "${name}" with budget $${budget}`,
-        `/projects`   // ✅ Changed to list page
+        `/projects`
       );
     }
 
@@ -172,7 +172,7 @@ router.put('/:id/respond', auth, async (req, res) => {
           'project_accepted',
           'Project Accepted',
           `Client "${client.name}" accepted the project: "${project.name}" with budget $${project.budget}`,
-          `/projects`   // ✅ Changed to list page
+          `/projects`
         );
       }
 
@@ -189,7 +189,7 @@ router.put('/:id/respond', auth, async (req, res) => {
           'project_rejected',
           'Project Rejected',
           `Client "${client.name}" rejected the project: "${project.name}"`,
-          `/projects`   // ✅ Changed to list page
+          `/projects`
         );
       }
 
@@ -271,7 +271,7 @@ router.put('/:id/complete', auth, async (req, res) => {
         'project_completed',
         'Project Completed',
         `Client "${client.name}" completed project: "${project.name}" (Invoice #${invoice.invoiceNo})`,
-        `/projects`   // ✅ Changed to list page
+        `/projects`
       );
     }
 
@@ -286,7 +286,7 @@ router.put('/:id/complete', auth, async (req, res) => {
   }
 });
 
-// UPDATE project (Admin only) – no changes
+// UPDATE project (Admin only) – with notification on budget revision
 router.put('/:id', auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);
@@ -299,13 +299,30 @@ router.put('/:id', auth, async (req, res) => {
     const updateData = { ...req.body };
     delete updateData.status;
     
+    let resetStatus = false;
     if (project.status === 'rejected') {
       updateData.status = 'pending_acceptance';
+      resetStatus = true;
       console.log(`✅ Project "${project.name}" was rejected, status reset to pending_acceptance`);
     }
     
     const updatedProject = await Project.findByIdAndUpdate(req.params.id, updateData, { new: true });
     console.log(`📋 Final status: ${updatedProject.status}`);
+
+    // ✅ CREATE NOTIFICATION FOR CLIENT if budget was revised
+    if (resetStatus) {
+      const client = await Client.findById(project.clientId);
+      if (client) {
+        await createNotification(
+          client.userId,
+          'project_created',
+          'Budget Revised',
+          `Admin revised the budget for project "${project.name}" to $${updateData.budget || project.budget}. Please review.`,
+          `/projects`
+        );
+      }
+    }
+
     res.json(updatedProject);
   } catch (err) {
     console.error('❌ Error updating project:', err);

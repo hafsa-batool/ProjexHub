@@ -54,7 +54,17 @@ const Navbar = () => {
       fetchUnreadCount();
     };
     window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+
+    // ✅ Listen for custom event from Notifications page
+    const handleNotificationRead = () => {
+      fetchUnreadCount();
+    };
+    window.addEventListener('notification-read', handleNotificationRead);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('notification-read', handleNotificationRead);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -73,7 +83,6 @@ const Navbar = () => {
 
   const navItems = allNavItems.filter(item => !item.adminOnly || isAdmin);
 
-  // ✅ Fixed active highlight – use startsWith for nested routes
   const isActive = (path) => {
     if (path === '/dashboard') return location.pathname === path;
     return location.pathname.startsWith(path);

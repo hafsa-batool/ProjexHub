@@ -26,8 +26,6 @@ const Notifications = () => {
         headers: { "x-auth-token": token },
       });
       setNotifications(res.data);
-
-      // ✅ Count unread notifications
       const unread = res.data.filter((n) => !n.read).length;
       setUnreadCount(unread);
     } catch (err) {
@@ -41,7 +39,7 @@ const Notifications = () => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // ✅ Mark all as read
+  // Mark all as read
   const markAllAsRead = async () => {
     try {
       const res = await axios.post(
@@ -54,13 +52,14 @@ const Notifications = () => {
       if (res.data.success) {
         setNotifications(notifications.map((n) => ({ ...n, read: true })));
         setUnreadCount(0);
+        window.dispatchEvent(new Event("notification-read")); // ✅ Notify Navbar
       }
     } catch (err) {
       console.error("Error marking all as read:", err);
     }
   };
 
-  // ✅ Mark single notification as read when clicked
+  // Mark single notification as read when clicked
   const markAsRead = async (id) => {
     try {
       await axios.put(
@@ -74,6 +73,7 @@ const Notifications = () => {
         notifications.map((n) => (n._id === id ? { ...n, read: true } : n)),
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
+      window.dispatchEvent(new Event("notification-read")); // ✅ Notify Navbar
     } catch (err) {
       console.error("Error marking notification as read:", err);
     }
@@ -140,7 +140,6 @@ const Notifications = () => {
             </div>
           </div>
 
-          {/* ✅ Mark All as Read Button */}
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
@@ -186,7 +185,6 @@ const Notifications = () => {
                     className="block p-4 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-xl transition"
                   >
                     <div className="flex items-start gap-4">
-                      {/* Icon */}
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                           notification.read
@@ -197,7 +195,6 @@ const Notifications = () => {
                         {getIcon(notification.type)}
                       </div>
 
-                      {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h4
@@ -210,12 +207,12 @@ const Notifications = () => {
                             {notification.title}
                           </h4>
                           {!notification.read && (
-                            <span className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0 animate-pulse"></span>
-                          )}
-                          {!notification.read && (
-                            <span className="text-[10px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded-full">
-                              NEW
-                            </span>
+                            <>
+                              <span className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0 animate-pulse"></span>
+                              <span className="text-[10px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded-full">
+                                NEW
+                              </span>
+                            </>
                           )}
                         </div>
                         <p
