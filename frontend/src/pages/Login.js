@@ -1,5 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaLock, FaArrowRight, FaProjectDiagram, FaUsers, FaClock, FaFileInvoice } from 'react-icons/fa';
@@ -12,7 +11,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,23 +24,13 @@ const Login = () => {
     setError('');
 
     try {
-      // 🔥 Direct API call using environment variable
       const res = await axios.post(`${API_URL}/api/auth/login`, {
         email, password
       });
 
       if (res.data.token) {
-        // Manually set token and user in localStorage (if not done by context)
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.user));
-
-        // Update context if possible – this will re-render the app
-        // If your AuthContext has a login method, you can still call it
-        // but we'll just navigate
-        // If you want to keep using the context login, you can but you'd need to update the context file.
-        // For now, we manually set and navigate.
-        // Optionally, call login(res.data.token, res.data.user) if your context supports that.
-        // Since we don't have the context code, we'll just navigate.
         navigate('/dashboard');
       } else {
         setError('Login failed');
@@ -54,23 +42,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-  // Alternate: Use context login (requires AuthContext to be updated)
-  // Uncomment below if you prefer to keep using context after updating AuthContext:
-  /*
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    const result = await login(email, password);
-    if (result.success) {
-      navigate('/dashboard');
-    } else {
-      setError(result.error);
-    }
-    setLoading(false);
-  };
-  */
 
   const features = [
     { icon: <FaProjectDiagram />, text: 'Project Management' },
