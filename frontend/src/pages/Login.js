@@ -3,13 +3,16 @@ import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaLock, FaArrowRight, FaProjectDiagram, FaUsers, FaClock, FaFileInvoice } from 'react-icons/fa';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,7 +24,44 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
+    try {
+      // 🔥 Direct API call using environment variable
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
+        email, password
+      });
+
+      if (res.data.token) {
+        // Manually set token and user in localStorage (if not done by context)
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+
+        // Update context if possible – this will re-render the app
+        // If your AuthContext has a login method, you can still call it
+        // but we'll just navigate
+        // If you want to keep using the context login, you can but you'd need to update the context file.
+        // For now, we manually set and navigate.
+        // Optionally, call login(res.data.token, res.data.user) if your context supports that.
+        // Since we don't have the context code, we'll just navigate.
+        navigate('/dashboard');
+      } else {
+        setError('Login failed');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.msg || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Alternate: Use context login (requires AuthContext to be updated)
+  // Uncomment below if you prefer to keep using context after updating AuthContext:
+  /*
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
     const result = await login(email, password);
     if (result.success) {
       navigate('/dashboard');
@@ -30,6 +70,7 @@ const Login = () => {
     }
     setLoading(false);
   };
+  */
 
   const features = [
     { icon: <FaProjectDiagram />, text: 'Project Management' },
@@ -43,23 +84,13 @@ const Login = () => {
       
       {/* Animated Gradient Orbs - Rotating Background */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Orb 1 - Big Purple */}
         <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float-slow"></div>
-        
-        {/* Orb 2 - Pink */}
         <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float-slower"></div>
-        
-        {/* Orb 3 - Blue */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
-        
-        {/* Orb 4 - Cyan */}
         <div className="absolute top-3/4 left-1/4 w-64 h-64 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-float-medium"></div>
-        
-        {/* Orb 5 - Indigo */}
         <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-float-slow-reverse"></div>
       </div>
 
-      {/* Rotating Ring Animation */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="relative w-[800px] h-[800px] animate-spin-slow">
           <div className="absolute top-0 left-1/2 w-4 h-4 bg-purple-400 rounded-full shadow-lg shadow-purple-500/50"></div>
@@ -69,7 +100,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Rotating Dashed Circle */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-[600px] h-[600px] rounded-full border-2 border-white/10 animate-spin-slow-reverse"></div>
         <div className="absolute w-[450px] h-[450px] rounded-full border border-white/5 animate-spin-slower"></div>
@@ -86,7 +116,6 @@ const Login = () => {
             transition={{ duration: 0.6 }}
             className="lg:w-1/2 text-center lg:text-left"
           >
-            {/* Logo */}
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -99,7 +128,6 @@ const Login = () => {
               </div>
             </motion.div>
 
-            {/* Main Title */}
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -127,7 +155,6 @@ const Login = () => {
               Track clients, manage projects, log hours, and generate invoices — all in one place.
             </motion.p>
 
-            {/* Features Grid */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -158,7 +185,6 @@ const Login = () => {
             className="lg:w-1/2 w-full max-w-md"
           >
             <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-              {/* Form Header */}
               <div className="text-center mb-8">
                 <motion.h2 
                   initial={{ opacity: 0 }}
@@ -178,7 +204,6 @@ const Login = () => {
                 </motion.p>
               </div>
 
-              {/* Error Message */}
               {error && (
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
@@ -189,7 +214,6 @@ const Login = () => {
                 </motion.div>
               )}
 
-              {/* Login Form */}
               <form onSubmit={handleSubmit} className="space-y-5">
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
@@ -270,7 +294,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Custom Animations */}
       <style jsx>{`
         @keyframes float-slow {
           0%, 100% { transform: translate(0, 0) rotate(0deg); }
