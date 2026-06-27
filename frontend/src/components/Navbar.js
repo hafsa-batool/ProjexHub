@@ -26,9 +26,9 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
-      const res = await axios.get('http://localhost:5000/api/notifications/unread-count', {
-        headers: { 'x-auth-token': token }
-      });
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/notifications/unread-count`, {
+  headers: { 'x-auth-token': token }
+});
       setUnreadCount(res.data.count || 0);
     } catch (err) {
       console.error('Failed to fetch unread count:', err);

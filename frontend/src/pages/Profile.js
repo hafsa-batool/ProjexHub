@@ -30,16 +30,16 @@ const Profile = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const clientsRes = await axios.get('http://localhost:5000/api/clients', {
+        const clientsRes = await axios.get('${process.env.REACT_APP_API_URL}/api//api/clients', {
           headers: { 'x-auth-token': token }
         });
-        const projectsRes = await axios.get('http://localhost:5000/api/projects', {
+        const projectsRes = await axios.get('${process.env.REACT_APP_API_URL}/api//api/projects', {
           headers: { 'x-auth-token': token }
         });
-        const timelogsRes = await axios.get('http://localhost:5000/api/timelogs', {
+        const timelogsRes = await axios.get('${process.env.REACT_APP_API_URL}/api//api/timelogs', {
           headers: { 'x-auth-token': token }
         });
-        const invoicesRes = await axios.get('http://localhost:5000/api/invoices', {
+        const invoicesRes = await axios.get('${process.env.REACT_APP_API_URL}/api//api/invoices', {
           headers: { 'x-auth-token': token }
         });
 
@@ -93,7 +93,7 @@ const Profile = () => {
         newPassword: formData.newPassword || undefined
       };
 
-      const res = await axios.put('http://localhost:5000/api/users/profile', updateData, {
+      const res = await axios.put('${process.env.REACT_APP_API_URL}/api//api/users/profile', updateData, {
         headers: { 'x-auth-token': token }
       });
 

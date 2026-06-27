@@ -20,7 +20,7 @@ const Projects = () => {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/projects', {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, {
         headers: { 'x-auth-token': token }
       });
       setProjects(res.data);
@@ -33,7 +33,7 @@ const Projects = () => {
 
   const fetchClients = useCallback(async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/clients', {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/clients`, {
         headers: { 'x-auth-token': token }
       });
       setClients(res.data);
@@ -51,13 +51,13 @@ const Projects = () => {
     e.preventDefault();
     try {
       if (editingProject) {
-        await axios.put(`http://localhost:5000/api/projects/${editingProject._id}`, formData, {
+        await axios.put(`${process.env.REACT_APP_API_URL}/api//api/projects/${editingProject._id}`, formData, {
           headers: { 'x-auth-token': token }
         });
       } else {
-        await axios.post('http://localhost:5000/api/projects', formData, {
-          headers: { 'x-auth-token': token }
-        });
+        await axios.post(`${process.env.REACT_APP_API_URL}/api/projects`, formData, {
+  headers: { 'x-auth-token': token }
+});
       }
       setFormData({ name: '', description: '', budget: '', deadline: '', clientId: '' });
       setShowForm(false);
@@ -71,7 +71,7 @@ const Projects = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/projects/${id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api//api/projects/${id}`, {
           headers: { 'x-auth-token': token }
         });
         fetchProjects();
@@ -96,7 +96,7 @@ const Projects = () => {
     e.preventDefault();
     e.stopPropagation();
     try {
-      const res = await axios.put(`http://localhost:5000/api/projects/${projectId}/respond`, 
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api//api/projects/${projectId}/respond`, 
         { accept },
         { headers: { 'x-auth-token': token } }
       );
@@ -111,7 +111,7 @@ const Projects = () => {
     if (window.confirm('Are you sure you want to mark this project as completed? An invoice will be created automatically.')) {
       setUpdating(true);
       try {
-        const res = await axios.put(`http://localhost:5000/api/projects/${projectId}/complete`, 
+        const res = await axios.put(`${process.env.REACT_APP_API_URL}/api//api/projects/${projectId}/complete`, 
           {},
           { headers: { 'x-auth-token': token } }
         );

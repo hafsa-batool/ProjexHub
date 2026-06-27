@@ -25,14 +25,14 @@ const ClientDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const clientRes = await axios.get(`http://localhost:5000/api/clients/${id}`, {
-          headers: { 'x-auth-token': token }
-        });
+        const clientRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/clients/${id}`, {
+  headers: { 'x-auth-token': token }
+});
         setClient(clientRes.data);
 
-        const projectsRes = await axios.get(`http://localhost:5000/api/projects/client/${id}`, {
-          headers: { 'x-auth-token': token }
-        });
+        const projectsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/client/${id}`, {
+  headers: { 'x-auth-token': token }
+});
         setProjects(projectsRes.data);
       } catch (err) {
         console.error(err);
@@ -46,10 +46,10 @@ const ClientDetail = () => {
   const handleCreateProject = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/projects', 
-        { ...projectForm, clientId: id },
-        { headers: { 'x-auth-token': token } }
-      );
+     const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/projects`, 
+  { ...projectForm, clientId: id },
+  { headers: { 'x-auth-token': token } }
+);
       setProjects([res.data, ...projects]);
       setShowProjectForm(false);
       setProjectForm({ name: '', description: '', budget: '', deadline: '' });
@@ -61,9 +61,9 @@ const ClientDetail = () => {
   const handleDeleteProject = async (projectId) => {
     if (window.confirm('Delete this project?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/projects/${projectId}`, {
-          headers: { 'x-auth-token': token }
-        });
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}`, {
+  headers: { 'x-auth-token': token }
+});
         setProjects(projects.filter(p => p._id !== projectId));
       } catch (err) {
         console.error(err);
@@ -73,14 +73,14 @@ const ClientDetail = () => {
 
   const handleRespondToProject = async (projectId, accept) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/projects/${projectId}/respond`, 
-        { accept },
-        { headers: { 'x-auth-token': token } }
-      );
+     const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/projects/${projectId}/respond`, 
+  { accept },
+  { headers: { 'x-auth-token': token } }
+);
       alert(res.data.msg);
-      const projectsRes = await axios.get(`http://localhost:5000/api/projects/client/${id}`, {
-        headers: { 'x-auth-token': token }
-      });
+      const projectsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects/client/${id}`, {
+  headers: { 'x-auth-token': token }
+});
       setProjects(projectsRes.data);
     } catch (err) {
       alert(err.response?.data?.msg || 'Something went wrong');

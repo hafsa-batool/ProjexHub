@@ -36,9 +36,9 @@ const Register = () => {
     setMessage('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', {
-        name, email, password, role
-      });
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+  name, email, password, role
+});
       
       setMessage(res.data.msg);
       setName('');

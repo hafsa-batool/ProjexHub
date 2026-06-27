@@ -22,9 +22,9 @@ const Clients = () => {
 
   const fetchClients = useCallback(async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/clients', {
-        headers: { 'x-auth-token': token }
-      });
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/clients`, {
+  headers: { 'x-auth-token': token }
+});
       setClients(res.data);
       setLoading(false);
     } catch (err) {

@@ -17,7 +17,7 @@ const AcceptInvite = () => {
   useEffect(() => {
     const checkInvitation = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/auth/check-invite/${token}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/check-invite/${token}`);
         
         if (res.data.userExists) {
           setStatus('existing-user');
@@ -37,7 +37,7 @@ const AcceptInvite = () => {
 
   const handleAcceptAsClient = async () => {
     try {
-      const res = await axios.post(`http://localhost:5000/api/auth/accept-invite/${token}`, {});
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/accept-invite/${token}`, {});
       
       if (res.data.success) {
         setStatus('success');
@@ -59,10 +59,10 @@ const AcceptInvite = () => {
     }
     
     try {
-      const res = await axios.post(`http://localhost:5000/api/auth/accept-invite/${token}`, { 
-        name, 
-        password 
-      });
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/accept-invite/${token}`, {
+  name,
+  password
+});
       
       if (res.data.success) {
         setStatus('success');
