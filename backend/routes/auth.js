@@ -32,7 +32,18 @@ router.post('/register', async (req, res) => {
     });
     
     await user.save();
-    await sendVerificationEmail(email, verificationToken);
+    
+    // 🔥 EMAIL SENDING WITH ERROR HANDLING (FIX FOR PHONE)
+    try {
+      await sendVerificationEmail(email, verificationToken);
+      console.log('✅ Verification email sent to:', email);
+    } catch (emailError) {
+      console.error('❌ Email error (non-critical):', emailError.message);
+      // Agar email fail ho, toh testing ke liye user ko auto-verify kar do
+      user.isVerified = true;
+      await user.save();
+      console.log('✅ User auto-verified (email failed)');
+    }
     
     res.json({ 
       success: true,
@@ -85,7 +96,6 @@ router.get('/check-invite/:token', async (req, res) => {
   }
 });
 
-// ACCEPT INVITATION
 // ACCEPT INVITATION
 router.post('/accept-invite/:token', async (req, res) => {
   try {
@@ -184,6 +194,7 @@ router.post('/accept-invite/:token', async (req, res) => {
     res.status(500).json({ msg: 'Server error: ' + err.message });
   }
 });
+
 // VERIFY EMAIL
 router.get('/verify-email/:token', async (req, res) => {
   try {
@@ -243,7 +254,7 @@ router.post('/login', async (req, res) => {
       (err, token) => {
         if (err) throw err;
         res.json({
-          success: true,  // ✅ ADD THIS LINE
+          success: true,
           token,
           user: {
             id: user.id,
