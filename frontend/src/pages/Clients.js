@@ -45,7 +45,7 @@ const Clients = () => {
   const handleUpdateClient = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/clients/${editingClient._id}`, formData, {
+      await axios.put(`https://projexhub-production.up.railway.app/api/clients/${editingClient._id}`, formData, {
         headers: { 'x-auth-token': token }
       });
       setFormData({ name: '', email: '', phone: '', company: '' });
@@ -59,7 +59,7 @@ const Clients = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this client?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/clients/${id}`, {
+        await axios.delete(`https://projexhub-production.up.railway.app/api/clients/${id}`, {
           headers: { 'x-auth-token': token }
         });
         fetchClients();
@@ -76,7 +76,7 @@ const Clients = () => {
     setInviteError('');
     
     try {
-      const res = await axios.post('http://localhost:5000/api/clients/invite', 
+      const res = await axios.post('https://projexhub-production.up.railway.app/api/clients/invite', 
         { email: inviteEmail },
         { headers: { 'x-auth-token': token } }
       );
