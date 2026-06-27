@@ -31,7 +31,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔥 PHONE DEBUGGING ALERT 1
     alert("1. Submit function called!");
 
     if (nameError) {
@@ -45,7 +44,7 @@ const Register = () => {
     setMessage('');
 
     try {
-      alert("2. Trying to send request to: " + `${API_URL}/api/auth/register`);
+      alert(`2. Trying to send request to: ${API_URL}/api/auth/register`);
 
       const res = await axios.post(`${API_URL}/api/auth/register`, {
         name, email, password, role
