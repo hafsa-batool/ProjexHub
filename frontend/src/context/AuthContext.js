@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// 🔥 HARDCODED RAILWAY URL
+const API_URL = 'https://projexhub-production.up.railway.app';
 
 export const AuthContext = createContext();
 
@@ -30,27 +31,18 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Sending login request for:', email);
       const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
-      console.log('Full response:', res);
-      console.log('Response data:', res.data);
-
-      // Backend returns token and user directly
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.user));
         setToken(res.data.token);
         setUser(res.data.user);
-        console.log('Login successful, redirecting...');
         return { success: true };
       } else {
-        console.log('No token in response');
         return { success: false, error: 'Login failed' };
       }
     } catch (err) {
-      console.error('Login error:', err.response?.data || err.message);
-      return {
-        success: false,
-        error: err.response?.data?.msg || 'Login failed'
-      };
+      console.error('Login error:', err);
+      return { success: false, error: err.response?.data?.msg || 'Login failed' };
     }
   };
 
@@ -59,6 +51,7 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post(`${API_URL}/api/auth/register`, { name, email, password, role });
       return { success: true, message: res.data.msg };
     } catch (err) {
+      console.error('Registration error:', err);
       return { success: false, error: err.response?.data?.msg || 'Registration failed' };
     }
   };

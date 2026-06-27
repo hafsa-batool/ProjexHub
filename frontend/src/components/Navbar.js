@@ -12,6 +12,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
+// 🔥 HARDCODED RAILWAY URL
+const API_URL = 'https://projexhub-production.up.railway.app';
+
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const { darkMode, toggleDarkMode } = useTheme();
@@ -26,9 +29,9 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/notifications/unread-count`, {
-  headers: { 'x-auth-token': token }
-});
+      const res = await axios.get(`${API_URL}/api/notifications/unread-count`, {
+        headers: { 'x-auth-token': token }
+      });
       setUnreadCount(res.data.count || 0);
     } catch (err) {
       console.error('Failed to fetch unread count:', err);
@@ -55,7 +58,6 @@ const Navbar = () => {
     };
     window.addEventListener('focus', handleFocus);
 
-    // ✅ Listen for custom event from Notifications page
     const handleNotificationRead = () => {
       fetchUnreadCount();
     };
@@ -94,7 +96,6 @@ const Navbar = () => {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-20">
             
-            {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group">
               <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
                 <FaChartLine className="text-white text-2xl" />
@@ -104,7 +105,6 @@ const Navbar = () => {
               </span>
             </Link>
             
-            {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-2">
               {navItems.map((item, idx) => (
                 <Link
@@ -130,9 +130,7 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* User Menu */}
             <div className="flex items-center gap-4">
-              {/* Notification Bell */}
               <button
                 onClick={handleBellClick}
                 className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
@@ -146,7 +144,6 @@ const Navbar = () => {
                 )}
               </button>
 
-              {/* Dark Mode Toggle */}
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleDarkMode}
@@ -155,7 +152,6 @@ const Navbar = () => {
                 {darkMode ? <FaSun className="text-xl text-yellow-400" /> : <FaMoon className="text-xl text-slate-300" />}
               </motion.button>
 
-              {/* Profile */}
               <Link
                 to="/profile"
                 className="hidden md:flex items-center gap-3 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 hover:bg-white/15 transition-all duration-200 cursor-pointer group"
@@ -167,7 +163,6 @@ const Navbar = () => {
                 </div>
               </Link>
               
-              {/* Logout */}
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 px-5 py-2.5 rounded-xl transition-all duration-200 border border-red-500/30 hover:border-red-500/50"
@@ -176,7 +171,6 @@ const Navbar = () => {
                 <span className="hidden md:inline text-sm font-semibold text-red-300">Logout</span>
               </button>
               
-              {/* Mobile Menu */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2.5 rounded-xl hover:bg-white/10 transition-all duration-200"
@@ -188,7 +182,6 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div

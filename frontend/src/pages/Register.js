@@ -4,6 +4,9 @@ import { motion } from 'framer-motion';
 import { FaUser, FaEnvelope, FaLock, FaUserTag, FaArrowRight, FaProjectDiagram } from 'react-icons/fa';
 import axios from 'axios';
 
+// 🔥 HARDCODED RAILWAY URL
+const API_URL = 'https://projexhub-production.up.railway.app';
+
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,20 +39,18 @@ const Register = () => {
     setMessage('');
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
-  name, email, password, role
-});
-      
+      const res = await axios.post(`${API_URL}/api/auth/register`, {
+        name, email, password, role
+      });
       setMessage(res.data.msg);
       setName('');
       setEmail('');
       setPassword('');
-      
       setTimeout(() => {
         navigate('/login');
       }, 3000);
-      
     } catch (err) {
+      console.error('Registration error:', err);
       setError(err.response?.data?.msg || 'Registration failed');
     } finally {
       setLoading(false);
