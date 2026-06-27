@@ -30,18 +30,28 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔥 PHONE DEBUGGING ALERT 1
+    alert("1. Submit function called!");
+
     if (nameError) {
+      alert("1.5 Name error detected!");
       setError('Please fix the name field error.');
       return;
     }
+
     setLoading(true);
     setError('');
     setMessage('');
 
     try {
+      alert("2. Trying to send request to: " + `${API_URL}/api/auth/register`);
+
       const res = await axios.post(`${API_URL}/api/auth/register`, {
         name, email, password, role
       });
+
+      alert("3. Request successful! Response: " + res.data.msg);
       setMessage(res.data.msg);
       setName('');
       setEmail('');
@@ -50,6 +60,7 @@ const Register = () => {
         navigate('/login');
       }, 3000);
     } catch (err) {
+      alert("4. ERROR CATCH: " + (err.response?.data?.msg || err.message || 'Unknown error'));
       console.error('Registration error:', err);
       setError(err.response?.data?.msg || 'Registration failed');
     } finally {
