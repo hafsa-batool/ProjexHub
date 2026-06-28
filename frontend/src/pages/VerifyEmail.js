@@ -1,80 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+
+// 🔥 RAILWAY URL (End mein /api nahi!)
+const API_URL = 'https://projexhub-production.up.railway.app';
 
 const VerifyEmail = () => {
   const { token } = useParams();
-  const navigate = useNavigate();
-  const [status, setStatus] = useState('loading');
+  const [status, setStatus] = useState('verifying');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/api/auth/verify-email/${token}`);
-        console.log('Response:', res.data);
-        
-        // ALWAYS show success if we get any response (because backend already verified)
+        const res = await axios.get(`${API_URL}/api/auth/verify-email/${token}`);
         setStatus('success');
-        setMessage(res.data?.msg || 'Email verified successfully!');
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-        
+        setMessage(res.data.msg || 'Email verified successfully!');
       } catch (err) {
-        console.log('Error response:', err.response?.data);
-        
-        // Even if error, if the user exists and verification happened, show success
-        // This happens when token is already used or user already verified
-        if (err.response?.status === 400) {
-          // This usually means "already verified" or "token expired but user exists"
-          setStatus('success');
-          setMessage('Email already verified! You can now login.');
-          setTimeout(() => navigate('/login'), 2000);
-        } else {
-          setStatus('error');
-          setMessage(err.response?.data?.msg || 'Verification failed');
-        }
+        console.error('Verification error:', err);
+        setStatus('error');
+        setMessage(err.response?.data?.msg || 'Verification failed');
       }
     };
-    
+
     if (token) {
       verifyEmail();
-    } else {
-      setStatus('error');
-      setMessage('No verification token found');
     }
-  }, [token, navigate]);
+  }, [token]);
+
+  if (status === 'verifying') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Verifying your email...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 w-full max-w-md text-center border border-white/20">
-        
-        {status === 'loading' && (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
+        {status === 'success' ? (
           <>
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500 mx-auto mb-4"></div>
-            <h2 className="text-2xl font-bold text-white">Verifying your email...</h2>
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Verification Successful! ✅</h2>
+            <p className="text-gray-600 mb-6">{message}</p>
+            <Link to="/login" className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition">
+              Go to Login
+            </Link>
           </>
-        )}
-        
-        {status === 'success' && (
+        ) : (
           <>
-            <FaCheckCircle className="text-green-400 text-6xl mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Email Verified! ✅</h2>
-            <p className="text-purple-200">{message}</p>
-            <p className="text-gray-300 text-sm mt-4">Redirecting to login...</p>
-          </>
-        )}
-        
-        {status === 'error' && (
-          <>
-            <FaTimesCircle className="text-red-400 text-6xl mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Verification Failed</h2>
-            <p className="text-red-200">{message}</p>
-            <Link to="/login" className="inline-block mt-6 text-purple-300 hover:text-white underline">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Verification Failed ❌</h2>
+            <p className="text-gray-600 mb-6">{message}</p>
+            <Link to="/login" className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition">
               Go to Login
             </Link>
           </>
@@ -84,4 +74,5 @@ const VerifyEmail = () => {
   );
 };
 
+// 🔥 YEH LINE ZAROORI HAI!
 export default VerifyEmail;
