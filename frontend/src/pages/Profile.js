@@ -93,7 +93,7 @@ const Profile = () => {
         newPassword: formData.newPassword || undefined
       };
 
-      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/api/users/profile`, updateData, {
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/users/profile`, updateData, {
         headers: { 'x-auth-token': token }
       });
 

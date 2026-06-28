@@ -13,7 +13,7 @@ const Invoices = () => {
   const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/api/invoices`, {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invoices`, {
         headers: { 'x-auth-token': token }
       });
       setInvoices(res.data);
@@ -34,12 +34,12 @@ const Invoices = () => {
     if (window.confirm('Mark this invoice as paid?')) {
       try {
         // 1. Mark as paid via backend
-        await axios.put(`${process.env.REACT_APP_API_URL}/api/api/invoices/${id}`, { status }, {
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/invoices/${id}`, { status }, {
           headers: { 'x-auth-token': token }
         });
 
         // 2. Immediately re‑verify this specific invoice
-        const verifyRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/api/invoices/${id}/verify`, {
+        const verifyRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/invoices/${id}/verify`, {
           headers: { 'x-auth-token': token }
         });
 
