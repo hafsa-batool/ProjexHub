@@ -1,45 +1,41 @@
-const nodemailer = require('nodemailer');
-
-// 🔥 Brevo SMTP Transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
-  port: parseInt(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  family: 4,
-  connectionTimeout: 5000,
-  socketTimeout: 5000
-});
-
-// Main sendEmail function with 10-second timeout
+// 🔥 BREVO HTTP API (No Nodemailer)
 const sendEmail = async (to, subject, html) => {
+  const apiKey = process.env.EMAIL_PASS;
+  const senderEmail = process.env.EMAIL_USER;
+
+  const url = 'https://api.brevo.com/v3/smtp/email';
+
+  const payload = {
+    sender: { email: senderEmail, name: 'ProjexHub' },
+    to: [{ email: to }],
+    subject: subject,
+    htmlContent: html
+  };
+
   try {
-    // 🔥 RACE CONDITION: Email send vs 10 second timeout
-    const sendMailPromise = transporter.sendMail({
-      from: `"ProjexHub" <${process.env.EMAIL_USER}>`,
-      to: to,
-      subject: subject,
-      html: html
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': apiKey
+      },
+      body: JSON.stringify(payload)
     });
 
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Email timeout (10s)')), 10000);
-    });
-
-    await Promise.race([sendMailPromise, timeoutPromise]);
-    
-    console.log('✅ Email sent to:', to);
-    return true;
+    if (response.ok) {
+      console.log('✅ Email sent via Brevo API to:', to);
+      return true;
+    } else {
+      const errorData = await response.json();
+      console.error('❌ Brevo API error:', errorData.message);
+      return false;
+    }
   } catch (error) {
-    console.error('❌ Email error:', error.message);
+    console.error('❌ Email exception:', error.message);
     return false;
   }
 };
 
-// Send verification email
 const sendVerificationEmail = async (email, token) => {
   const url = `${process.env.CLIENT_URL}/verify-email/${token}`;
   const html = `
@@ -48,13 +44,11 @@ const sendVerificationEmail = async (email, token) => {
       <p>Click the button below to verify your email:</p>
       <a href="${url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 20px 0;">Verify Email</a>
       <p style="color: #999; font-size: 12px;">Or copy this link: ${url}</p>
-      <p style="color: #999; font-size: 12px;">This link expires in 24 hours.</p>
     </div>
   `;
   return await sendEmail(email, 'Verify Your ProjexHub Account', html);
 };
 
-// Send reset password email
 const sendResetPasswordEmail = async (email, token) => {
   const url = `${process.env.CLIENT_URL}/reset-password/${token}`;
   const html = `
@@ -62,25 +56,19 @@ const sendResetPasswordEmail = async (email, token) => {
       <h2 style="color: #333;">Reset Your Password</h2>
       <p>Click the button below to reset your password:</p>
       <a href="${url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 20px 0;">Reset Password</a>
-      <p style="color: #999; font-size: 12px;">Or copy this link: ${url}</p>
       <p style="color: #999; font-size: 12px;">This link expires in 1 hour.</p>
     </div>
   `;
   return await sendEmail(email, 'Reset Your ProjexHub Password', html);
 };
 
-// Send client invitation email
 const sendClientInvitationEmail = async (email, token, adminName) => {
   const acceptUrl = `${process.env.CLIENT_URL}/accept-invite/${token}`;
   const html = `
     <div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
       <h2 style="color: #333;">You've been invited to ProjexHub!</h2>
       <p><strong>${adminName}</strong> has added you as a client.</p>
-      <p>Click the button below to create your account and get started:</p>
       <a href="${acceptUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 20px 0;">Accept Invitation</a>
-      <p style="color: #999; font-size: 12px;">Or copy this link: ${acceptUrl}</p>
-      <p style="color: #999; font-size: 12px;">This link expires in 7 days.</p>
-      <p style="color: #999; font-size: 12px;">If you didn't request this, please ignore this email.</p>
     </div>
   `;
   return await sendEmail(email, `Invitation to join ProjexHub from ${adminName}`, html);
