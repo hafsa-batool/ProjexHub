@@ -9,31 +9,15 @@ import {
 
 // 🔥 Animation Variants
 const fadeInUp = {
-  hidden: { opacity: 0, y: 60 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
 };
-
-const fadeInLeft = {
-  hidden: { opacity: 0, x: -80 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } }
-};
-
-const fadeInRight = {
-  hidden: { opacity: 0, x: 80 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } }
-};
-
 const staggerChildren = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+    transition: { staggerChildren: 0.1, delayChildren: 0.15 }
   }
-};
-
-const floatingAnimation = {
-  y: [0, -12, 0],
-  transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
 };
 
 const Home = () => {
@@ -106,58 +90,68 @@ const Home = () => {
   return (
     <div className="min-h-screen relative overflow-x-hidden">
       
-      {/* ========== TEXTURED BACKGROUND WITH MOVEMENT ========== */}
+      {/* ========== ENHANCED BACKGROUND WITH MOVEMENT (SAME AS LOGIN) ========== */}
       <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950/90 to-purple-950/90"></div>
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '30px 30px'
-        }}></div>
-        <div className="absolute inset-0 opacity-[0.08]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23a)'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '250px 250px',
-          animation: 'slowNoise 30s infinite alternate ease-in-out'
-        }}></div>
-        <div className="absolute top-0 -left-40 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-floatOrb1"></div>
-        <div className="absolute bottom-0 -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-floatOrb2"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl animate-floatOrb3"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl animate-floatOrb4"></div>
+        
+        {/* 5 Floating glowing orbs */}
+        <div className="absolute top-0 -left-40 w-96 h-96 bg-indigo-500/25 rounded-full blur-3xl animate-floatOrb1"></div>
+        <div className="absolute bottom-0 -right-40 w-96 h-96 bg-purple-500/25 rounded-full blur-3xl animate-floatOrb2"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl animate-floatOrb3"></div>
+        <div className="absolute top-1/4 right-1/3 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl animate-floatOrb4"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl animate-floatOrb5"></div>
+        
+        {/* Shimmer lines */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -inset-[100%] w-[200%] h-[200%] bg-gradient-to-r from-transparent via-white/5 to-transparent rotate-45 animate-shimmerSlow"></div>
           <div className="absolute -inset-[100%] w-[200%] h-[200%] bg-gradient-to-l from-transparent via-indigo-500/5 to-transparent -rotate-12 animate-shimmerReverse"></div>
         </div>
+        
+        {/* Subtle dot grid */}
         <div className="absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 1px)`,
           backgroundSize: '32px 32px'
         }}></div>
+        
+        {/* 8 Floating particles / stars */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-[10%] left-[5%] w-2 h-2 bg-white/20 rounded-full animate-floatParticle1"></div>
+          <div className="absolute top-[20%] right-[15%] w-3 h-3 bg-indigo-400/20 rounded-full animate-floatParticle2"></div>
+          <div className="absolute bottom-[30%] left-[10%] w-2 h-2 bg-purple-400/20 rounded-full animate-floatParticle3"></div>
+          <div className="absolute bottom-[20%] right-[20%] w-4 h-4 bg-blue-400/15 rounded-full animate-floatParticle4"></div>
+          <div className="absolute top-[50%] left-[50%] w-2 h-2 bg-pink-400/20 rounded-full animate-floatParticle5"></div>
+          <div className="absolute top-[70%] right-[5%] w-3 h-3 bg-emerald-400/15 rounded-full animate-floatParticle6"></div>
+          <div className="absolute top-[5%] right-[40%] w-1.5 h-1.5 bg-white/20 rounded-full animate-floatParticle7"></div>
+          <div className="absolute bottom-[10%] left-[45%] w-2 h-2 bg-indigo-400/15 rounded-full animate-floatParticle8"></div>
+        </div>
       </div>
 
       <style>{`
-        @keyframes slowNoise {
-          0% { opacity: 0.06; transform: scale(1); }
-          100% { opacity: 0.12; transform: scale(1.03); }
-        }
         @keyframes floatOrb1 {
-          0% { transform: translate(0%, 0%) scale(1); opacity: 0.2; }
-          50% { transform: translate(8%, 12%) scale(1.3); opacity: 0.35; }
-          100% { transform: translate(-5%, 8%) scale(0.9); opacity: 0.2; }
+          0% { transform: translate(0%, 0%) scale(1); opacity: 0.25; }
+          50% { transform: translate(10%, 15%) scale(1.4); opacity: 0.45; }
+          100% { transform: translate(-8%, 10%) scale(0.9); opacity: 0.25; }
         }
         @keyframes floatOrb2 {
-          0% { transform: translate(0%, 0%) scale(1); opacity: 0.2; }
-          50% { transform: translate(-12%, -8%) scale(1.4); opacity: 0.35; }
-          100% { transform: translate(6%, -6%) scale(0.95); opacity: 0.2; }
+          0% { transform: translate(0%, 0%) scale(1); opacity: 0.25; }
+          50% { transform: translate(-15%, -10%) scale(1.5); opacity: 0.45; }
+          100% { transform: translate(8%, -8%) scale(0.95); opacity: 0.25; }
         }
         @keyframes floatOrb3 {
-          0% { transform: translate(0%, 0%) scale(1); opacity: 0.15; }
-          50% { transform: translate(15%, -10%) scale(1.2); opacity: 0.3; }
-          100% { transform: translate(-8%, 12%) scale(0.9); opacity: 0.15; }
+          0% { transform: translate(-50%, -50%) scale(1); opacity: 0.15; }
+          50% { transform: translate(-45%, -55%) scale(1.3); opacity: 0.3; }
+          100% { transform: translate(-55%, -45%) scale(0.9); opacity: 0.15; }
         }
         @keyframes floatOrb4 {
           0% { transform: translate(0%, 0%) scale(1); opacity: 0.1; }
-          50% { transform: translate(-10%, 15%) scale(1.25); opacity: 0.25; }
-          100% { transform: translate(12%, -8%) scale(0.85); opacity: 0.1; }
+          50% { transform: translate(-12%, 18%) scale(1.4); opacity: 0.25; }
+          100% { transform: translate(15%, -10%) scale(0.85); opacity: 0.1; }
+        }
+        @keyframes floatOrb5 {
+          0% { transform: translate(0%, 0%) scale(1); opacity: 0.1; }
+          50% { transform: translate(14%, -12%) scale(1.3); opacity: 0.25; }
+          100% { transform: translate(-10%, 16%) scale(0.9); opacity: 0.1; }
         }
         @keyframes shimmerSlow {
           0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
@@ -167,12 +161,63 @@ const Home = () => {
           0% { transform: translateX(100%) translateY(-100%) rotate(-12deg); }
           100% { transform: translateX(-100%) translateY(100%) rotate(-12deg); }
         }
+        @keyframes floatParticle1 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+          50% { transform: translate(30px, -40px) scale(1.5); opacity: 0.6; }
+        }
+        @keyframes floatParticle2 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+          50% { transform: translate(-35px, 30px) scale(1.5); opacity: 0.6; }
+        }
+        @keyframes floatParticle3 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+          50% { transform: translate(40px, 25px) scale(1.5); opacity: 0.6; }
+        }
+        @keyframes floatParticle4 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+          50% { transform: translate(-45px, -35px) scale(1.6); opacity: 0.5; }
+        }
+        @keyframes floatParticle5 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+          50% { transform: translate(25px, -50px) scale(1.5); opacity: 0.6; }
+        }
+        @keyframes floatParticle6 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+          50% { transform: translate(-30px, 40px) scale(1.5); opacity: 0.5; }
+        }
+        @keyframes floatParticle7 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+          50% { transform: translate(20px, -30px) scale(1.5); opacity: 0.6; }
+        }
+        @keyframes floatParticle8 {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+          50% { transform: translate(-25px, 35px) scale(1.5); opacity: 0.5; }
+        }
+        @keyframes floatText {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-12px); }
+        }
+        @keyframes shimmerText {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
         .animate-floatOrb1 { animation: floatOrb1 20s infinite alternate ease-in-out; }
         .animate-floatOrb2 { animation: floatOrb2 25s infinite alternate ease-in-out; }
-        .animate-floatOrb3 { animation: floatOrb3 28s infinite alternate ease-in-out; }
+        .animate-floatOrb3 { animation: floatOrb3 30s infinite alternate ease-in-out; }
         .animate-floatOrb4 { animation: floatOrb4 22s infinite alternate ease-in-out; }
+        .animate-floatOrb5 { animation: floatOrb5 28s infinite alternate ease-in-out; }
         .animate-shimmerSlow { animation: shimmerSlow 18s infinite linear; }
         .animate-shimmerReverse { animation: shimmerReverse 22s infinite linear; }
+        .animate-floatParticle1 { animation: floatParticle1 8s infinite alternate ease-in-out; }
+        .animate-floatParticle2 { animation: floatParticle2 10s infinite alternate ease-in-out; }
+        .animate-floatParticle3 { animation: floatParticle3 9s infinite alternate ease-in-out; }
+        .animate-floatParticle4 { animation: floatParticle4 12s infinite alternate ease-in-out; }
+        .animate-floatParticle5 { animation: floatParticle5 7s infinite alternate ease-in-out; }
+        .animate-floatParticle6 { animation: floatParticle6 11s infinite alternate ease-in-out; }
+        .animate-floatParticle7 { animation: floatParticle7 9s infinite alternate ease-in-out; }
+        .animate-floatParticle8 { animation: floatParticle8 10s infinite alternate ease-in-out; }
+        .animate-float-text { animation: floatText 5s ease-in-out infinite; }
+        .animate-shimmerText { animation: shimmerText 4s linear infinite; }
       `}</style>
 
       {/* Screenshots Modal */}
@@ -197,7 +242,7 @@ const Home = () => {
                 <h2 className="text-2xl font-bold text-gray-900">ProjexHub Demo</h2>
                 <p className="text-gray-500 mt-1">See how ProjexHub works</p>
               </div>
-              <button onClick={() => setShowDemo(false)} className="p-2 hover:bg-gray-100 rounded-full transition">
+              <button onClick={() => setShowDemo(false)} className="p-2 hover:bg-gray-100 rounded-full transition duration-150">
                 <FaTimes className="text-2xl text-gray-500" />
               </button>
             </div>
@@ -207,8 +252,8 @@ const Home = () => {
                   key={idx} 
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="border border-gray-200 rounded-2xl p-4 hover:shadow-lg transition"
+                  transition={{ delay: idx * 0.08 }}
+                  className="border border-gray-200 rounded-2xl p-4 hover:shadow-lg transition duration-150"
                 >
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">{screenshot.title}</h3>
                   <p className="text-gray-500 mb-4">{screenshot.desc}</p>
@@ -227,7 +272,7 @@ const Home = () => {
               ))}
             </div>
             <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex justify-center rounded-b-3xl">
-              <Link to="/register" className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition">
+              <Link to="/register" className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition duration-150">
                 Get Started Now
               </Link>
             </div>
@@ -239,15 +284,15 @@ const Home = () => {
       <motion.nav 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         className="fixed top-0 left-0 w-full z-50 bg-black/40 backdrop-blur-xl border-b border-white/10 shadow-2xl"
       >
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <Link to="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
+            <Link to="/" className="flex items-center gap-2 group transition-transform hover:scale-105 duration-150">
               <motion.div 
                 whileHover={{ rotate: [0, -10, 10, -5, 5, 0] }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.4 }}
                 className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg"
               >
                 <FaProjectDiagram className="text-white text-xl" />
@@ -257,10 +302,10 @@ const Home = () => {
               </span>
             </Link>
             <div className="flex items-center gap-4">
-              <Link to="/login" className="text-white/70 hover:text-white transition px-4 py-2 rounded-lg hover:bg-white/10 font-medium">
+              <Link to="/login" className="text-white/70 hover:text-white transition duration-150 px-4 py-2 rounded-lg hover:bg-white/10 font-medium">
                 Login
               </Link>
-              <Link to="/register" className="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl hover:shadow-lg transition shadow-md font-semibold">
+              <Link to="/register" className="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl hover:shadow-lg transition duration-150 shadow-md font-semibold">
                 Get Started
               </Link>
             </div>
@@ -281,9 +326,10 @@ const Home = () => {
               <FaRocket className="text-sm animate-pulse" /> The Ultimate Solution
             </motion.div>
             
+            {/* 🔥 Floating + Shimmer Text */}
             <motion.h1 
               variants={fadeInUp}
-              className="text-6xl lg:text-8xl font-extrabold mb-6 tracking-tight"
+              className="text-6xl lg:text-8xl font-extrabold mb-6 tracking-tight animate-float-text"
             >
               <span className="bg-gradient-to-r from-white via-indigo-300 to-purple-300 bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmerText">
                 ProjexHub
@@ -299,12 +345,12 @@ const Home = () => {
             </motion.p>
             
             <motion.div variants={fadeInUp} className="flex flex-wrap gap-5 justify-center">
-              <Link to="/register" className="group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                Start Free Trial <FaArrowRight className="group-hover:translate-x-1 transition" />
+              <Link to="/register" className="group inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-150">
+                Start Free Trial <FaArrowRight className="group-hover:translate-x-1 transition duration-150" />
               </Link>
               <button 
                 onClick={() => setShowDemo(true)}
-                className="inline-flex items-center gap-2 border border-white/30 bg-white/10 backdrop-blur-md text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white/20 hover:border-white/50 transition-all duration-300"
+                className="inline-flex items-center gap-2 border border-white/30 bg-white/10 backdrop-blur-md text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white/20 hover:border-white/50 transition-all duration-150"
               >
                 <FaPlay className="animate-pulse" /> Watch Demo
               </button>
@@ -315,15 +361,15 @@ const Home = () => {
           <motion.div 
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
             className="mt-20 max-w-4xl mx-auto group"
           >
             <motion.div 
-              whileHover={{ scale: 1.03 }}
-              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300, duration: 0.3 }}
               className="relative"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl blur-2xl opacity-40 group-hover:opacity-60 transition duration-500 animate-pulse"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl blur-2xl opacity-40 group-hover:opacity-60 transition duration-300 animate-pulse"></div>
               <div className="relative bg-black/40 backdrop-blur-md rounded-3xl shadow-2xl p-2 border border-white/20">
                 <img 
                   src="/screenshots/dashboard.png" 
@@ -354,13 +400,13 @@ const Home = () => {
               <motion.div 
                 key={idx} 
                 variants={fadeInUp}
-                whileHover={{ scale: 1.08, y: -4 }}
-                transition={{ type: 'spring', damping: 15, stiffness: 300 }}
+                whileHover={{ scale: 1.06, y: -3 }}
+                transition={{ type: 'spring', damping: 15, stiffness: 300, duration: 0.15 }}
                 className="text-center group"
               >
                 <motion.div 
                   whileHover={{ rotate: [0, -10, 10, 0] }}
-                  transition={{ duration: 0.4 }}
+                  transition={{ duration: 0.3 }}
                   className="w-12 h-12 mx-auto mb-3 flex items-center justify-center"
                 >
                   {stat.icon}
@@ -369,7 +415,7 @@ const Home = () => {
                   className="text-3xl md:text-4xl font-bold text-white"
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3 + idx * 0.15, type: 'spring', damping: 10, stiffness: 100 }}
+                  transition={{ delay: 0.2 + idx * 0.12, type: 'spring', damping: 10, stiffness: 100 }}
                 >
                   {stat.value}
                 </motion.p>
@@ -400,15 +446,15 @@ const Home = () => {
                 variants={fadeInUp}
                 whileHover={{ 
                   scale: 1.05, 
-                  y: -8,
-                  boxShadow: "0 20px 40px rgba(99, 102, 241, 0.3)"
+                  y: -6,
+                  boxShadow: "0 16px 32px rgba(99, 102, 241, 0.25)"
                 }}
-                transition={{ type: 'spring', damping: 15, stiffness: 300 }}
-                className="group bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 text-center border border-white/20"
+                transition={{ type: 'spring', damping: 15, stiffness: 300, duration: 0.15 }}
+                className="group bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-150 text-center border border-white/20"
               >
                 <motion.div 
-                  whileHover={{ rotate: [0, -8, 8, -4, 4, 0], scale: 1.15 }}
-                  transition={{ duration: 0.5 }}
+                  whileHover={{ rotate: [0, -8, 8, -4, 4, 0], scale: 1.1 }}
+                  transition={{ duration: 0.3 }}
                   className={`w-20 h-20 ${feature.bg} rounded-2xl flex items-center justify-center mx-auto mb-5`}
                 >
                   {feature.icon}
@@ -443,13 +489,13 @@ const Home = () => {
               <motion.div 
                 key={idx}
                 variants={fadeInUp}
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.2)' }}
-                transition={{ type: 'spring', damping: 15, stiffness: 300 }}
+                whileHover={{ scale: 1.04, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                transition={{ type: 'spring', damping: 15, stiffness: 300, duration: 0.15 }}
                 className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-white text-center border border-white/20"
               >
                 <motion.div 
-                  whileHover={{ scale: 1.2, rotate: [0, -5, 5, 0] }}
-                  transition={{ duration: 0.4 }}
+                  whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }}
+                  transition={{ duration: 0.3 }}
                   className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4"
                 >
                   {item.emoji}
@@ -472,9 +518,10 @@ const Home = () => {
       >
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-12">
-            <motion.div variants={fadeInLeft} className="flex-1 text-center lg:text-left">
+            <motion.div variants={fadeInUp} className="flex-1 text-center lg:text-left">
               <motion.div 
                 whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.15 }}
                 className="inline-flex items-center gap-2 bg-purple-500/20 backdrop-blur-md text-purple-200 px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-purple-500/30"
               >
                 <FaShieldAlt className="animate-pulse" /> Blockchain Enhanced
@@ -486,6 +533,7 @@ const Home = () => {
                   <motion.div 
                     key={idx}
                     whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.15 }}
                     className="flex items-center gap-2"
                   >
                     <FaCheckCircle className="text-green-400 animate-pulse" />
@@ -495,13 +543,16 @@ const Home = () => {
               </div>
             </motion.div>
             <motion.div 
-              variants={fadeInRight}
-              whileHover={{ scale: 1.05, rotate: [0, 1, -1, 0] }}
-              transition={{ duration: 0.3 }}
+              variants={fadeInUp}
+              whileHover={{ scale: 1.04, rotate: [0, 1, -1, 0] }}
+              transition={{ duration: 0.25 }}
               className="flex-1"
             >
               <motion.div 
-                animate={floatingAnimation}
+                animate={{ 
+                  y: [0, -10, 0],
+                  transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                }}
                 className="bg-white/10 backdrop-blur-md rounded-3xl p-8 text-center border border-white/20"
               >
                 <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 shadow-lg">
@@ -533,11 +584,11 @@ const Home = () => {
                 key={idx}
                 variants={fadeInUp}
                 whileHover={{ 
-                  scale: 1.03, 
-                  y: -4,
-                  boxShadow: "0 20px 40px rgba(99, 102, 241, 0.2)"
+                  scale: 1.02, 
+                  y: -3,
+                  boxShadow: "0 16px 32px rgba(99, 102, 241, 0.18)"
                 }}
-                transition={{ type: 'spring', damping: 15, stiffness: 300 }}
+                transition={{ type: 'spring', damping: 15, stiffness: 300, duration: 0.15 }}
                 className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-lg border border-white/20"
               >
                 <div className="flex items-center gap-3 mb-4">
@@ -553,7 +604,7 @@ const Home = () => {
                 <motion.div 
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: 'spring', damping: 10, stiffness: 100 }}
+                  transition={{ delay: 0.15, type: 'spring', damping: 10, stiffness: 100 }}
                   className="flex gap-1 text-yellow-400 mb-3"
                 >
                   {[...Array(5)].map((_, i) => (
@@ -577,14 +628,19 @@ const Home = () => {
       >
         <div className="absolute inset-0 bg-black/20"></div>
         <motion.div 
-          animate={floatingAnimation}
+          animate={{ 
+            y: [0, -15, 0],
+            transition: { duration: 5, repeat: Infinity, ease: "easeInOut" }
+          }}
           className="absolute top-10 right-10 text-9xl opacity-10"
         >
           🚀
         </motion.div>
         <motion.div 
-          animate={floatingAnimation}
-          transition={{ delay: 1, duration: 5 }}
+          animate={{ 
+            y: [0, 15, 0],
+            transition: { duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }
+          }}
           className="absolute bottom-10 left-10 text-8xl opacity-10"
         >
           ⚡
@@ -597,8 +653,8 @@ const Home = () => {
             Join thousands of satisfied users and start managing your projects efficiently
           </motion.p>
           <motion.div variants={fadeInUp}>
-            <Link to="/register" className="group inline-flex items-center gap-2 bg-white text-indigo-600 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
-              Get Started For Free <FaArrowRight className="group-hover:translate-x-1 transition" />
+            <Link to="/register" className="group inline-flex items-center gap-2 bg-white text-indigo-600 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-150">
+              Get Started For Free <FaArrowRight className="group-hover:translate-x-1 transition duration-150" />
             </Link>
           </motion.div>
         </div>
@@ -608,9 +664,9 @@ const Home = () => {
       <footer className="bg-black/50 backdrop-blur-md text-gray-400 py-12 border-t border-white/10">
         <div className="container mx-auto px-6 text-center">
           <div className="flex justify-center gap-8 mb-6">
-            <Link to="/" className="hover:text-white transition">Home</Link>
-            <Link to="/login" className="hover:text-white transition">Login</Link>
-            <Link to="/register" className="hover:text-white transition">Register</Link>
+            <Link to="/" className="hover:text-white transition duration-150">Home</Link>
+            <Link to="/login" className="hover:text-white transition duration-150">Login</Link>
+            <Link to="/register" className="hover:text-white transition duration-150">Register</Link>
           </div>
           <p className="text-white/60">© 2025 ProjexHub. All rights reserved.</p>
           <p className="text-sm mt-2 text-white/40">Secure • Reliable • Blockchain Powered</p>
