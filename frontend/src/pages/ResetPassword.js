@@ -24,7 +24,8 @@ const ResetPassword = () => {
     setError('');
     
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/api/auth/reset-password/${token}`, { password });
+      // 🔥 FIXED: Removed duplicate /api
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/reset-password/${token}`, { password });
       setMessage(res.data.msg);
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
