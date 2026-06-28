@@ -26,8 +26,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 🔥 FIX: Saare API calls mein $$ ki jagah $ (SINGLE dollar sign)
-        // Aur data ko safe rakha (fallback as empty array)
+        
         const clientsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/clients`, {
           headers: { 'x-auth-token': token }
         });
@@ -41,13 +40,13 @@ const Dashboard = () => {
           headers: { 'x-auth-token': token }
         });
 
-        // 🔥 FIX: Safe data extraction (agar data null/undefined ho toh empty array)
+        
         const clientsData = Array.isArray(clientsRes.data) ? clientsRes.data : [];
         const projectsData = Array.isArray(projectsRes.data) ? projectsRes.data : [];
         const timelogsData = Array.isArray(timelogsRes.data) ? timelogsRes.data : [];
         const invoicesData = Array.isArray(invoicesRes.data) ? invoicesRes.data : [];
 
-        // 🔥 FIX: Reduce se pehle check (sirf array par chalega)
+       
         const totalHours = timelogsData.reduce((sum, log) => sum + (log.hours || 0), 0);
         
         let pendingAmount = 0;
@@ -108,7 +107,7 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, [token, isAdmin, user?.id]); // 👈 Dependency array sahi hai
+  }, [token, isAdmin, user?.id]); 
 
   const animateCounters = (targetStats) => {
     const duration = 800;

@@ -30,8 +30,14 @@ router.get('/notification-counts', auth, async (req, res) => {
         });
       }
     } else if (req.user.role === 'admin') {
-      counts.completed = await Project.countDocuments({ status: 'completed' });
-      counts.ongoing = await Project.countDocuments({ status: 'ongoing' });
+      counts.completed = await Project.countDocuments({ 
+        status: 'completed', 
+        createdBy: req.user.id 
+      });
+      counts.ongoing = await Project.countDocuments({ 
+        status: 'ongoing', 
+        createdBy: req.user.id 
+      });
     }
 
     res.json(counts);
@@ -46,7 +52,7 @@ router.get('/', auth, async (req, res) => {
   try {
     let projects;
     if (req.user.role === 'admin') {
-      projects = await Project.find().populate('clientId');
+      projects = await Project.find({ createdBy: req.user.id }).populate('clientId');
     } else {
       const clients = await Client.find({ userId: req.user.id });
       const clientIds = clients.map(c => c._id);
@@ -77,7 +83,11 @@ router.get('/:id', auth, async (req, res) => {
     const project = await Project.findById(req.params.id).populate('clientId');
     if (!project) return res.status(404).json({ msg: 'Project not found' });
     
-    if (req.user.role !== 'admin') {
+    if (req.user.role === 'admin') {
+      if (project.createdBy && project.createdBy.toString() !== req.user.id) {
+        return res.status(403).json({ msg: 'Access denied' });
+      }
+    } else {
       const client = await Client.findById(project.clientId._id);
       if (client && client.userId.toString() !== req.user.id) {
         return res.status(403).json({ msg: 'Access denied' });
@@ -92,14 +102,17 @@ router.get('/:id', auth, async (req, res) => {
 // GET projects by client ID
 router.get('/client/:clientId', auth, async (req, res) => {
   try {
-    const projects = await Project.find({ clientId: req.params.clientId }).populate('clientId');
+    const projects = await Project.find({ 
+      clientId: req.params.clientId,
+      createdBy: req.user.id
+    }).populate('clientId');
     res.json(projects);
   } catch (err) {
     res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// POST create project – notification to /projects
+// POST create project – notification to BOTH client AND admin
 router.post('/', auth, async (req, res) => {
   try {
     const { name, description, budget, deadline, clientId } = req.body;
@@ -117,13 +130,15 @@ router.post('/', auth, async (req, res) => {
       budget, 
       deadline, 
       clientId,
-      status: 'pending_acceptance' 
+      status: 'pending_acceptance',
+      createdBy: req.user.id
     });
     await project.save();
     res.json(project);
 
     const client = await Client.findById(clientId);
     if (client) {
+      // 🔥 Notification to CLIENT
       await createNotification(
         client.userId,
         'project_created',
@@ -133,13 +148,22 @@ router.post('/', auth, async (req, res) => {
       );
     }
 
+    // 🔥 Notification to ADMIN (self)
+    await createNotification(
+      req.user.id,
+      'project_created',
+      'Project Created',
+      `You created a new project: "${name}" with budget $${budget}`,
+      `/projects`
+    );
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// ACCEPT/REJECT ROUTE – notifications to /projects
+// ACCEPT/REJECT ROUTE – notifications to BOTH admin AND client
 router.put('/:id/respond', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -165,6 +189,7 @@ router.put('/:id/respond', auth, async (req, res) => {
       project.status = 'ongoing';
       await project.save();
 
+      // 🔥 Notification to ADMIN
       const admin = await User.findOne({ role: 'admin' });
       if (admin) {
         await createNotification(
@@ -176,12 +201,22 @@ router.put('/:id/respond', auth, async (req, res) => {
         );
       }
 
+      // 🔥 Notification to CLIENT (self)
+      await createNotification(
+        req.user.id,
+        'project_accepted',
+        'Project Accepted',
+        `You accepted the project: "${project.name}" with budget $${project.budget}`,
+        `/projects`
+      );
+
       return res.json({ success: true, msg: `✅ Budget $${project.budget} accepted!` });
       
     } else if (accept === false) {
       project.status = 'rejected';
       await project.save();
 
+      // 🔥 Notification to ADMIN
       const admin = await User.findOne({ role: 'admin' });
       if (admin) {
         await createNotification(
@@ -192,6 +227,15 @@ router.put('/:id/respond', auth, async (req, res) => {
           `/projects`
         );
       }
+
+      // 🔥 Notification to CLIENT (self)
+      await createNotification(
+        req.user.id,
+        'project_rejected',
+        'Project Rejected',
+        `You rejected the project: "${project.name}"`,
+        `/projects`
+      );
 
       return res.json({ success: true, msg: `❌ Budget rejected.` });
       
@@ -204,7 +248,7 @@ router.put('/:id/respond', auth, async (req, res) => {
   }
 });
 
-// MARK PROJECT AS COMPLETED – notification to /projects
+// MARK PROJECT AS COMPLETED – notification to BOTH admin and client
 router.put('/:id/complete', auth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -264,6 +308,7 @@ router.put('/:id/complete', auth, async (req, res) => {
       blockchainTxId = invoice.blockchainTxId;
     }
 
+    // 🔥 Notification to ADMIN
     const admin = await User.findOne({ role: 'admin' });
     if (admin) {
       await createNotification(
@@ -274,6 +319,15 @@ router.put('/:id/complete', auth, async (req, res) => {
         `/projects`
       );
     }
+
+    // 🔥 Notification to CLIENT (self)
+    await createNotification(
+      req.user.id,
+      'project_completed',
+      'Project Completed',
+      `You completed the project: "${project.name}" (Invoice #${invoice.invoiceNo})`,
+      `/projects`
+    );
 
     return res.json({
       success: true,
@@ -296,6 +350,10 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(403).json({ msg: 'Access denied. Only admin can edit projects' });
     }
     
+    if (project.createdBy && project.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ msg: 'You are not authorized to edit this project' });
+    }
+    
     const updateData = { ...req.body };
     delete updateData.status;
     
@@ -309,10 +367,10 @@ router.put('/:id', auth, async (req, res) => {
     const updatedProject = await Project.findByIdAndUpdate(req.params.id, updateData, { new: true });
     console.log(`📋 Final status: ${updatedProject.status}`);
 
-    // ✅ CREATE NOTIFICATION FOR CLIENT if budget was revised
     if (resetStatus) {
       const client = await Client.findById(project.clientId);
       if (client) {
+        // 🔥 Notification to CLIENT
         await createNotification(
           client.userId,
           'project_created',
@@ -321,6 +379,15 @@ router.put('/:id', auth, async (req, res) => {
           `/projects`
         );
       }
+
+      // 🔥 Notification to ADMIN (self)
+      await createNotification(
+        req.user.id,
+        'project_updated',
+        'Budget Revised',
+        `You revised the budget for project "${project.name}" to $${updateData.budget || project.budget}.`,
+        `/projects`
+      );
     }
 
     res.json(updatedProject);
@@ -340,6 +407,10 @@ router.delete('/:id', auth, async (req, res) => {
       const client = await Client.findById(project.clientId);
       if (client && client.userId.toString() !== req.user.id) {
         return res.status(403).json({ msg: 'Access denied' });
+      }
+    } else {
+      if (project.createdBy && project.createdBy.toString() !== req.user.id) {
+        return res.status(403).json({ msg: 'You cannot delete this project' });
       }
     }
     

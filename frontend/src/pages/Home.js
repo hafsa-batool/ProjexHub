@@ -90,7 +90,7 @@ const Home = () => {
   return (
     <div className="min-h-screen relative overflow-x-hidden">
       
-      {/* ========== ENHANCED BACKGROUND WITH MOVEMENT (SAME AS LOGIN) ========== */}
+      {/* ========== ENHANCED BACKGROUND WITH MOVEMENT  ========== */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950/90 to-purple-950/90"></div>
@@ -326,7 +326,7 @@ const Home = () => {
               <FaRocket className="text-sm animate-pulse" /> The Ultimate Solution
             </motion.div>
             
-            {/* 🔥 Floating + Shimmer Text */}
+            {/*  Floating + Shimmer Text */}
             <motion.h1 
               variants={fadeInUp}
               className="text-6xl lg:text-8xl font-extrabold mb-6 tracking-tight animate-float-text"

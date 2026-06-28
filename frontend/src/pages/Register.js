@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { FaUser, FaEnvelope, FaLock, FaUserTag, FaArrowRight, FaProjectDiagram } from 'react-icons/fa';
 import axios from 'axios';
 
-// 🔥 HARDCODED RAILWAY URL
 const API_URL = 'https://projexhub-production.up.railway.app';
 
 const Register = () => {

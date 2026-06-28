@@ -207,7 +207,7 @@ const Projects = () => {
                   <textarea placeholder="Description" rows="3" className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-white" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
                   <input type="number" placeholder="Budget *" className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-white" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} required />
                   <input type="date" placeholder="Deadline" className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-white" value={formData.deadline} onChange={(e) => setFormData({ ...formData, deadline: e.target.value })} />
-                  {/* ✅ FIX: Prevent past date selection */}
+                  {}
                   <input
                     type="date"
                     placeholder="Deadline"
@@ -282,7 +282,7 @@ const Projects = () => {
                       {statusBadge.icon}
                       {statusBadge.label}
                     </span>
-                    {/* ✅ Overdue Badge */}
+                    {}
                     {isOverdue && (
                       <span className="ml-2 px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
                         ⚠️ Overdue
