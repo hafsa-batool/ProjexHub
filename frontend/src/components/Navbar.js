@@ -93,36 +93,37 @@ const Navbar = () => {
   return (
     <>
       <nav className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl sticky top-0 z-50 border-b border-white/10">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center h-20">
+        {/* 🔥 FIX: max-w-7xl + responsive padding */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 sm:h-20">
             
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
-                <FaChartLine className="text-white text-2xl" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200">
+                <FaChartLine className="text-white text-xl sm:text-2xl" />
               </div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 ProjexHub
               </span>
             </Link>
             
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1 lg:gap-2">
               {navItems.map((item, idx) => (
                 <Link
                   key={idx}
                   to={item.to}
-                  className={`relative flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-200 group ${
+                  className={`relative flex items-center gap-2 lg:gap-3 px-3 lg:px-5 py-2 lg:py-3 rounded-xl transition-all duration-200 group ${
                     isActive(item.to)
                       ? 'bg-white/10 text-white shadow-lg scale-105'
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <span className="text-xl group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
-                  <span className="font-semibold text-base tracking-wide">{item.label}</span>
+                  <span className="text-lg lg:text-xl group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
+                  <span className="font-semibold text-sm lg:text-base tracking-wide">{item.label}</span>
                   
                   {isActive(item.to) && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"
+                      className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-6 lg:w-8 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"
                       transition={{ duration: 0.2 }}
                     />
                   )}
@@ -130,13 +131,13 @@ const Navbar = () => {
               ))}
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={handleBellClick}
-                className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
+                className="relative p-2 sm:p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
                 title="Notifications"
               >
-                <FaBell className="text-xl text-slate-300" />
+                <FaBell className="text-lg sm:text-xl text-slate-300" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-5 flex items-center justify-center px-1.5 shadow-lg shadow-red-500/50 animate-pulse">
                     {unreadCount > 99 ? '99+' : unreadCount}
@@ -147,14 +148,14 @@ const Navbar = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleDarkMode}
-                className="relative p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
+                className="relative p-2 sm:p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
               >
-                {darkMode ? <FaSun className="text-xl text-yellow-400" /> : <FaMoon className="text-xl text-slate-300" />}
+                {darkMode ? <FaSun className="text-lg sm:text-xl text-yellow-400" /> : <FaMoon className="text-lg sm:text-xl text-slate-300" />}
               </motion.button>
 
               <Link
                 to="/profile"
-                className="hidden md:flex items-center gap-3 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20 hover:bg-white/15 transition-all duration-200 cursor-pointer group"
+                className="hidden md:flex items-center gap-2 lg:gap-3 bg-white/10 backdrop-blur-sm px-3 lg:px-4 py-2 rounded-full border border-white/20 hover:bg-white/15 transition-all duration-200 cursor-pointer group"
               >
                 <FaUserCircle className="text-2xl text-indigo-400 group-hover:scale-110 transition-transform duration-200" />
                 <div className="text-left">
@@ -165,15 +166,15 @@ const Navbar = () => {
               
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 px-5 py-2.5 rounded-xl transition-all duration-200 border border-red-500/30 hover:border-red-500/50"
+                className="flex items-center gap-1 sm:gap-2 bg-red-500/20 hover:bg-red-500/30 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl transition-all duration-200 border border-red-500/30 hover:border-red-500/50"
               >
                 <FaSignOutAlt className="text-red-400 text-base" />
-                <span className="hidden md:inline text-sm font-semibold text-red-300">Logout</span>
+                <span className="hidden sm:inline text-sm font-semibold text-red-300">Logout</span>
               </button>
               
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2.5 rounded-xl hover:bg-white/10 transition-all duration-200"
+                className="md:hidden p-2 sm:p-2.5 rounded-xl hover:bg-white/10 transition-all duration-200"
               >
                 {isMobileMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
               </button>
@@ -189,7 +190,7 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden fixed top-20 left-0 right-0 bg-slate-900 shadow-2xl z-40 border-b border-white/10 max-h-[calc(100vh-80px)] overflow-y-auto"
+            className="md:hidden fixed top-16 sm:top-20 left-0 right-0 bg-slate-900 shadow-2xl z-40 border-b border-white/10 max-h-[calc(100vh-80px)] overflow-y-auto"
           >
             <div className="flex flex-col p-4 space-y-2">
               {navItems.map((item, idx) => (

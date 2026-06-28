@@ -216,29 +216,33 @@ router.get('/verify-email/:token', async (req, res) => {
   }
 });
 
-// LOGIN
+// 🔥 LOGIN - IMPROVED WITH SPECIFIC ERROR MESSAGES
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Login attempt:', email);
+    console.log('🔐 Login attempt:', email);
     
+    // ✅ Check 1: User exists?
     const user = await User.findOne({ email });
     if (!user) {
-      console.log('User not found');
-      return res.status(400).json({ msg: 'Invalid email or password' });
+      console.log('❌ User not found:', email);
+      return res.status(404).json({ msg: 'Email not registered' });
     }
     
+    // ✅ Check 2: Email verified?
     if (!user.isVerified) {
-      console.log('Email not verified');
-      return res.status(401).json({ msg: 'Please verify your email first!' });
+      console.log('❌ Email not verified:', email);
+      return res.status(403).json({ msg: 'Please verify your email first' });
     }
     
+    // ✅ Check 3: Password correct?
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      console.log('Password incorrect');
-      return res.status(400).json({ msg: 'Invalid email or password' });
+      console.log('❌ Incorrect password for:', email);
+      return res.status(401).json({ msg: 'Invalid password' });
     }
     
+    // ✅ All checks passed - Login success
     const payload = {
       user: {
         id: user.id,
@@ -264,8 +268,9 @@ router.post('/login', async (req, res) => {
         });
       }
     );
+    
   } catch (err) {
-    console.error('Login error:', err);
+    console.error('❌ Login error:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
@@ -285,6 +290,7 @@ router.post('/forgot-password', async (req, res) => {
     await sendResetPasswordEmail(email, resetToken);
     res.json({ msg: 'Password reset link sent to your email' });
   } catch (err) {
+    console.error('Forgot password error:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
@@ -310,6 +316,7 @@ router.post('/reset-password/:token', async (req, res) => {
     
     res.json({ msg: 'Password reset successful! Please login.' });
   } catch (err) {
+    console.error('Reset password error:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
