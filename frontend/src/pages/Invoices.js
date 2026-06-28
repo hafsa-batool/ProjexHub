@@ -13,7 +13,7 @@ const Invoices = () => {
   const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get('${process.env.REACT_APP_API_URL}/api//api/invoices', {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/invoices`, {
         headers: { 'x-auth-token': token }
       });
       setInvoices(res.data);

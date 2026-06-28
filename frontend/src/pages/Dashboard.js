@@ -26,16 +26,16 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const clientsRes = await axios.get('${process.env.REACT_APP_API_URL}/api//api/clients', {
+        const clientsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/clients`, {
           headers: { 'x-auth-token': token }
         });
-        const projectsRes = await axios.get('${process.env.REACT_APP_API_URL}/api//api/projects', {
+        const projectsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/projects`, {
           headers: { 'x-auth-token': token }
         });
-        const timelogsRes = await axios.get('${process.env.REACT_APP_API_URL}/api//api/timelogs', {
+        const timelogsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/timelogs`, {
           headers: { 'x-auth-token': token }
         });
-        const invoicesRes = await axios.get('${process.env.REACT_APP_API_URL}/api//api/invoices', {
+        const invoicesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/invoices`, {
           headers: { 'x-auth-token': token }
         });
 

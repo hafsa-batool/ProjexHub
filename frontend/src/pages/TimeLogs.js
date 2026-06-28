@@ -17,7 +17,7 @@ const TimeLogs = () => {
 
   const fetchLogs = useCallback(async () => {
     try {
-      const res = await axios.get('${process.env.REACT_APP_API_URL}/api//api/timelogs', {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/timelogs`, {
         headers: { 'x-auth-token': token }
       });
       setLogs(res.data);
@@ -30,7 +30,7 @@ const TimeLogs = () => {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const res = await axios.get('${process.env.REACT_APP_API_URL}/api//api/projects', {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/projects`, {
         headers: { 'x-auth-token': token }
       });
       setProjects(res.data);
@@ -47,7 +47,7 @@ const TimeLogs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('${process.env.REACT_APP_API_URL}/api//api/timelogs', formData, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api//api/timelogs`, formData, {
         headers: { 'x-auth-token': token }
       });
       setFormData({ hours: '', description: '', projectId: '' });
