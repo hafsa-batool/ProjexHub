@@ -51,7 +51,7 @@ const Projects = () => {
     e.preventDefault();
     try {
       if (editingProject) {
-        await axios.put(`${process.env.REACT_APP_API_URL}/api//api/projects/${editingProject._id}`, formData, {
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/api/projects/${editingProject._id}`, formData, {
           headers: { 'x-auth-token': token }
         });
       } else {
@@ -71,7 +71,7 @@ const Projects = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/api//api/projects/${id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/api/projects/${id}`, {
           headers: { 'x-auth-token': token }
         });
         fetchProjects();
@@ -96,7 +96,7 @@ const Projects = () => {
     e.preventDefault();
     e.stopPropagation();
     try {
-      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api//api/projects/${projectId}/respond`, 
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/api/projects/${projectId}/respond`, 
         { accept },
         { headers: { 'x-auth-token': token } }
       );
@@ -111,7 +111,7 @@ const Projects = () => {
     if (window.confirm('Are you sure you want to mark this project as completed? An invoice will be created automatically.')) {
       setUpdating(true);
       try {
-        const res = await axios.put(`${process.env.REACT_APP_API_URL}/api//api/projects/${projectId}/complete`, 
+        const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/api/projects/${projectId}/complete`, 
           {},
           { headers: { 'x-auth-token': token } }
         );

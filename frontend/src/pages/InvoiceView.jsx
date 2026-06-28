@@ -24,13 +24,13 @@ const InvoiceView = () => {
       const headers = { "x-auth-token": token };
 
       const invoiceRes = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api//api/invoices/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/api/invoices/${id}`,
         { headers },
       );
       setInvoice(invoiceRes.data);
 
       const verifyRes = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api//api/invoices/${id}/verify`,
+        `${process.env.REACT_APP_API_URL}/api/api/invoices/${id}/verify`,
         { headers },
       );
       console.log("Verification API response:", verifyRes.data);
@@ -47,7 +47,7 @@ const InvoiceView = () => {
       const token = localStorage.getItem("token");
       const headers = { "x-auth-token": token };
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api//api/invoices/${id}/audit`,
+        `${process.env.REACT_APP_API_URL}/api/api/invoices/${id}/audit`,
         { headers },
       );
       setAuditTrail(res.data.auditTrail || []);

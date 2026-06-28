@@ -29,7 +29,7 @@ const EditProject = () => {
 
     const fetchProject = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/projects/${id}`, {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/api/projects/${id}`, {
           headers: { 'x-auth-token': token }
         });
         setFormData({
@@ -59,7 +59,7 @@ const EditProject = () => {
     setSuccess('');
 
     try {
-      await axios.put(`${process.env.REACT_APP_API_URL}/api//api/projects/${id}`, formData, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/api/projects/${id}`, formData, {
         headers: { 'x-auth-token': token }
       });
       

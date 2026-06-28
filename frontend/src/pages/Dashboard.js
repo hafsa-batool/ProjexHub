@@ -26,10 +26,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // 🔥 FIX: Saare API calls mein $$ ki jagah $ (SINGLE dollar sign)
+        // Aur data ko safe rakha (fallback as empty array)
         const clientsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/clients`, {
           headers: { 'x-auth-token': token }
         });
-        const projectsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api//projects`, {
+        const projectsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/projects`, {
           headers: { 'x-auth-token': token }
         });
         const timelogsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/timelogs`, {
@@ -39,32 +41,39 @@ const Dashboard = () => {
           headers: { 'x-auth-token': token }
         });
 
-        const totalHours = timelogsRes.data.reduce((sum, log) => sum + log.hours, 0);
+        // 🔥 FIX: Safe data extraction (agar data null/undefined ho toh empty array)
+        const clientsData = Array.isArray(clientsRes.data) ? clientsRes.data : [];
+        const projectsData = Array.isArray(projectsRes.data) ? projectsRes.data : [];
+        const timelogsData = Array.isArray(timelogsRes.data) ? timelogsRes.data : [];
+        const invoicesData = Array.isArray(invoicesRes.data) ? invoicesRes.data : [];
+
+        // 🔥 FIX: Reduce se pehle check (sirf array par chalega)
+        const totalHours = timelogsData.reduce((sum, log) => sum + (log.hours || 0), 0);
         
         let pendingAmount = 0;
         let totalPaid = 0;
         
         if (isAdmin) {
-          pendingAmount = invoicesRes.data
+          pendingAmount = invoicesData
             .filter(inv => inv.status === 'pending')
-            .reduce((sum, inv) => sum + inv.amount, 0);
-          totalPaid = invoicesRes.data
+            .reduce((sum, inv) => sum + (inv.amount || 0), 0);
+          totalPaid = invoicesData
             .filter(inv => inv.status === 'paid')
-            .reduce((sum, inv) => sum + inv.amount, 0);
+            .reduce((sum, inv) => sum + (inv.amount || 0), 0);
         } else {
-          pendingAmount = invoicesRes.data
+          pendingAmount = invoicesData
             .filter(inv => inv.status === 'pending' && inv.clientId?._id === user?.id)
-            .reduce((sum, inv) => sum + inv.amount, 0);
-          totalPaid = invoicesRes.data
+            .reduce((sum, inv) => sum + (inv.amount || 0), 0);
+          totalPaid = invoicesData
             .filter(inv => inv.status === 'paid' && inv.clientId?._id === user?.id)
-            .reduce((sum, inv) => sum + inv.amount, 0);
+            .reduce((sum, inv) => sum + (inv.amount || 0), 0);
         }
 
-        // Calculate monthly completed projects
+        // Monthly completed projects chart data
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthlyCompleted = new Array(12).fill(0);
         
-        projectsRes.data.forEach(project => {
+        projectsData.forEach(project => {
           if (project.status === 'completed' && project.updatedAt) {
             const date = new Date(project.updatedAt);
             const monthIndex = date.getMonth();
@@ -79,10 +88,10 @@ const Dashboard = () => {
         
         setMonthlyData(chartData);
 
-        const ongoingProjectsCount = projectsRes.data.filter(p => p.status === 'ongoing').length;
+        const ongoingProjectsCount = projectsData.filter(p => p.status === 'ongoing').length;
 
         const newStats = {
-          clients: clientsRes.data.length,
+          clients: clientsData.length,
           projects: ongoingProjectsCount,
           totalHours: totalHours,
           pendingAmount: pendingAmount,
@@ -90,16 +99,16 @@ const Dashboard = () => {
         };
         setStats(newStats);
         animateCounters(newStats);
-        setRecentProjects(projectsRes.data.slice(0, 4));
-        setRecentInvoices(invoicesRes.data.slice(0, 4));
+        setRecentProjects(projectsData.slice(0, 4));
+        setRecentInvoices(invoicesData.slice(0, 4));
         setLoading(false);
       } catch (err) {
-        console.error(err);
+        console.error('Dashboard fetch error:', err);
         setLoading(false);
       }
     };
     fetchData();
-  }, [token, isAdmin, user?.id]);
+  }, [token, isAdmin, user?.id]); // 👈 Dependency array sahi hai
 
   const animateCounters = (targetStats) => {
     const duration = 800;
@@ -132,14 +141,14 @@ const Dashboard = () => {
     { title: 'TOTAL CLIENTS', value: counters.clients, icon: <FaUsers />, bgGradient: 'from-blue-500 to-indigo-600', trend: '+12%', trendUp: true, subtitle: 'Total Clients', link: '/clients' },
     { title: 'ACTIVE PROJECTS', value: counters.projects, icon: <FaProjectDiagram />, bgGradient: 'from-emerald-500 to-teal-600', trend: '+8%', trendUp: true, subtitle: 'Ongoing Projects', link: '/projects' },
     { title: 'CLIENT LOG HOURS', value: counters.hours, icon: <FaClock />, bgGradient: 'from-purple-500 to-pink-600', trend: '+22%', trendUp: true, subtitle: 'Total Hours by Clients', link: '/timelogs' },
-    { title: 'PENDING AMOUNT', value: `$${counters.amount || 0}`, icon: <FaDollarSign />, bgGradient: 'from-orange-500 to-red-600', trend: '-5%', trendUp: false, subtitle: 'Pending Payments', link: '/invoices' }
+    { title: 'PENDING AMOUNT', value: `${counters.amount || 0}`, icon: <FaDollarSign />, bgGradient: 'from-orange-500 to-red-600', trend: '-5%', trendUp: false, subtitle: 'Pending Payments', link: '/invoices' }
   ];
 
   // Client Cards with navigation links
   const clientCards = [
     { title: 'YOUR PROJECTS', value: counters.projects, icon: <FaProjectDiagram />, bgGradient: 'from-emerald-500 to-teal-600', trend: '+8%', trendUp: true, subtitle: 'Your Ongoing Projects', link: '/projects' },
     { title: 'YOUR HOURS', value: counters.hours, icon: <FaClock />, bgGradient: 'from-purple-500 to-pink-600', trend: '+22%', trendUp: true, subtitle: 'Hours Logged', link: '/timelogs' },
-    { title: 'PENDING AMOUNT', value: `$${counters.amount || 0}`, icon: <FaDollarSign />, bgGradient: 'from-orange-500 to-red-600', trend: '-5%', trendUp: false, subtitle: 'Expected Payment', link: '/invoices' }
+    { title: 'PENDING AMOUNT', value: `${counters.amount || 0}`, icon: <FaDollarSign />, bgGradient: 'from-orange-500 to-red-600', trend: '-5%', trendUp: false, subtitle: 'Expected Payment', link: '/invoices' }
   ];
 
   const cards = isAdmin ? adminCards : clientCards;
@@ -243,7 +252,7 @@ const Dashboard = () => {
               </div>
               <ResponsiveContainer width="100%" height={320}>
                 <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={({ name, value, percent }) => `${name}: $${value} (${(percent * 100).toFixed(0)}%)`} outerRadius={110} innerRadius={60} fill="#8884d8" dataKey="value" paddingAngle={5}>
+                  <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`} outerRadius={110} innerRadius={60} fill="#8884d8" dataKey="value" paddingAngle={5}>
                     {pieData.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} stroke="white" strokeWidth={2} />))}
                   </Pie>
                   <Tooltip contentStyle={{ backgroundColor: 'white', border: 'none', borderRadius: '16px' }} />

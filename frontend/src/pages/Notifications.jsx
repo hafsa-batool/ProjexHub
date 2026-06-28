@@ -23,7 +23,7 @@ const Notifications = () => {
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api//api/notifications`,
+        `${process.env.REACT_APP_API_URL}/api/api/notifications`,
         {
           headers: { "x-auth-token": token },
         },
@@ -46,7 +46,7 @@ const Notifications = () => {
   const markAllAsRead = async () => {
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api//api/notifications/mark-all-read`,
+        `${process.env.REACT_APP_API_URL}/api/api/notifications/mark-all-read`,
         {},
         {
           headers: { "x-auth-token": token },
@@ -66,7 +66,7 @@ const Notifications = () => {
   const markAsRead = async (id) => {
     try {
       await axios.put(
-        `${process.env.REACT_APP_API_URL}/api//api/notifications/${id}/read`,
+        `${process.env.REACT_APP_API_URL}/api/api/notifications/${id}/read`,
         {},
         {
           headers: { "x-auth-token": token },

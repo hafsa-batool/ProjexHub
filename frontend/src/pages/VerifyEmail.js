@@ -12,7 +12,7 @@ const VerifyEmail = () => {
   useEffect(() => {
     const verifyEmail = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/auth/verify-email/${token}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/api/auth/verify-email/${token}`);
         console.log('Response:', res.data);
         
         // ALWAYS show success if we get any response (because backend already verified)

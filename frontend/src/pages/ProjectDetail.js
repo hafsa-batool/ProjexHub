@@ -17,7 +17,7 @@ const ProjectDetail = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api//api/projects/${id}`, {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/api/projects/${id}`, {
           headers: { 'x-auth-token': token }
         });
         setProject(res.data);
@@ -35,7 +35,7 @@ const ProjectDetail = () => {
     if (window.confirm('Are you sure you want to mark this project as completed? An invoice will be created automatically.')) {
       setUpdating(true);
       try {
-        const res = await axios.put(`${process.env.REACT_APP_API_URL}/api//api/projects/${id}/complete`, 
+        const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/api/projects/${id}/complete`, 
           {},
           { headers: { 'x-auth-token': token } }
         );
