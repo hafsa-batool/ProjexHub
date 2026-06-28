@@ -1,28 +1,36 @@
 const nodemailer = require('nodemailer');
 
-// 🔥 Brevo SMTP Transporter (Railway friendly)
+// 🔥 Brevo SMTP Transporter
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
   port: parseInt(process.env.EMAIL_PORT) || 587,
-  secure: false, // TLS (587 port par false)
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
-  family: 4,  // IPv4 force
-  connectionTimeout: 30000,
-  socketTimeout: 30000
+  family: 4,
+  connectionTimeout: 5000,
+  socketTimeout: 5000
 });
 
-// Main sendEmail function
+// Main sendEmail function with 10-second timeout
 const sendEmail = async (to, subject, html) => {
   try {
-    const info = await transporter.sendMail({
+    // 🔥 RACE CONDITION: Email send vs 10 second timeout
+    const sendMailPromise = transporter.sendMail({
       from: `"ProjexHub" <${process.env.EMAIL_USER}>`,
       to: to,
       subject: subject,
       html: html
     });
+
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Email timeout (10s)')), 10000);
+    });
+
+    await Promise.race([sendMailPromise, timeoutPromise]);
+    
     console.log('✅ Email sent to:', to);
     return true;
   } catch (error) {

@@ -7,7 +7,7 @@ const User = require('../models/User');
 const ClientInvitation = require('../models/ClientInvitation');
 const { sendVerificationEmail, sendResetPasswordEmail } = require('../utils/sendEmail');
 
-// REGISTER
+// REGISTER - FIXED with proper response handling
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -32,24 +32,25 @@ router.post('/register', async (req, res) => {
     });
     
     await user.save();
+    console.log('✅ User saved to DB:', email);
     
-    // 🔥 Send email - NO AUTO-VERIFY
-    try {
-      await sendVerificationEmail(email, verificationToken);
-      console.log('✅ Verification email sent to:', email);
-    } catch (emailError) {
-      console.error('❌ Email error:', emailError.message);
-      // Don't auto-verify! User must verify via email
-      // But we still send success response so frontend doesn't hang
+    // 🔥 Send email with timeout guard
+    const emailSent = await sendVerificationEmail(email, verificationToken);
+    
+    if (emailSent) {
+      console.log('✅ Email sent successfully to:', email);
+    } else {
+      console.log('❌ Email failed for:', email, '— User must verify via link (if any) or try login later.');
     }
     
-    res.json({ 
+    // 👇 ALWAYS SEND RESPONSE (Frontend shouldn't hang)
+    res.status(200).json({ 
       success: true,
       msg: 'Registration successful! Please check your email to verify your account.' 
     });
     
   } catch (err) {
-    console.error('Registration error:', err);
+    console.error('❌ Registration error:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 });
