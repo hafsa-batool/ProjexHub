@@ -33,16 +33,14 @@ router.post('/register', async (req, res) => {
     
     await user.save();
     
-    // 🔥 EMAIL SENDING WITH ERROR HANDLING (FIX FOR PHONE)
+    // 🔥 Send email - NO AUTO-VERIFY
     try {
       await sendVerificationEmail(email, verificationToken);
       console.log('✅ Verification email sent to:', email);
     } catch (emailError) {
-      console.error('❌ Email error (non-critical):', emailError.message);
-      // Agar email fail ho, toh testing ke liye user ko auto-verify kar do
-      user.isVerified = true;
-      await user.save();
-      console.log('✅ User auto-verified (email failed)');
+      console.error('❌ Email error:', emailError.message);
+      // Don't auto-verify! User must verify via email
+      // But we still send success response so frontend doesn't hang
     }
     
     res.json({ 

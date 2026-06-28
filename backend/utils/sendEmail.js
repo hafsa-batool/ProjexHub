@@ -1,13 +1,17 @@
 const nodemailer = require('nodemailer');
 
-// Create transporter
+// 🔥 Brevo SMTP Transporter (Railway friendly)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
+  port: parseInt(process.env.EMAIL_PORT) || 587,
+  secure: false, // TLS (587 port par false)
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
-  family: 4  // 👈 BAS YEH EK LINE ADD KARO (IPv4 force karne ke liye)
+  family: 4,  // IPv4 force
+  connectionTimeout: 30000,
+  socketTimeout: 30000
 });
 
 // Main sendEmail function
@@ -74,7 +78,6 @@ const sendClientInvitationEmail = async (email, token, adminName) => {
   return await sendEmail(email, `Invitation to join ProjexHub from ${adminName}`, html);
 };
 
-// Export all functions
 module.exports = { 
   sendEmail, 
   sendVerificationEmail, 
